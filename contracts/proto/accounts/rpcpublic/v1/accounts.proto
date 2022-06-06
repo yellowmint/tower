@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package accounts.rpcpublic.v1;
 
+import "validate/validate.proto";
+
 service AccountsService {
   rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
   rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
@@ -11,7 +13,7 @@ service AccountsService {
 }
 
 message GetAccountRequest {
-  string account_id = 1;
+  string account_id = 1 [(validate.rules).string.uuid = true];
 }
 message GetAccountResponse {
   string account_id = 1;
@@ -25,7 +27,7 @@ message GetMyAccountResponse {
 }
 
 message CreateMyAccountRequest {
-  string name = 1;
+  string name = 1 [(validate.rules).string = {max_len: 16, pattern: "^[a-zA-Z0-9]+$"}];
 }
 message CreateMyAccountResponse {}
 

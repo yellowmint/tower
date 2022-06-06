@@ -10,3 +10,8 @@ plugins:
   - name: go-grpc
     out: gen/go
     opt: paths=source_relative
+  - name: validate
+    out: gen/go
+    opt:
+      - paths=source_relative
+      - lang=go
