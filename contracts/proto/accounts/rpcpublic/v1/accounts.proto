@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package accounts.rpcpublic.v1;
 
-option go_package = "git.jetbrains.space/artdecoction/wt/tower/contracts/accounts/rpcpublicv1";
-
 service AccountsService {
   rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
   rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
