@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package accounts.rpcpublic.v1;
+
+option go_package = "git.jetbrains.space/artdecoction/wt/tower/contracts/accounts/rpcpublicv1";
+
+service AccountsService {
+  rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
+  rpc GetMyAccount (GetMyAccountRequest) returns (GetMyAccountResponse);
+
+  rpc CreateMyAccount (CreateMyAccountRequest) returns (CreateMyAccountResponse);
+  rpc DeleteMyAccount (DeleteMyAccountRequest) returns (DeleteMyAccountResponse);
+}
+
+message GetAccountRequest {
+  string account_id = 1;
+}
+message GetAccountResponse {
+  string account_id = 1;
+  string name = 2;
+}
+
+message GetMyAccountRequest {}
+message GetMyAccountResponse {
+  string account_id = 1;
+  string name = 2;
+}
+
+message CreateMyAccountRequest {
+  string name = 1;
+}
+message CreateMyAccountResponse {}
+
+message DeleteMyAccountRequest {}
+message DeleteMyAccountResponse {}

@@ -1,3 +1,5 @@
 .idea/
 
-./be/services/contracts/
+# generated proto
+contracts/gen/
+be/services/contracts/
