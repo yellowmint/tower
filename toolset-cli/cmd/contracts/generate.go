@@ -27,24 +27,6 @@ func Generate(service string, skipLint, skipBreaking bool) {
 	copyGeneratedFilesToServices(service)
 }
 
-func copyGeneratedFilesToServices(service string) {
-	source := getProjectRootDir() + outputDirectory + "go/"
-	destination := getProjectRootDir() + "be/services/contracts/"
-
-	if service != "" {
-		source += service + "/"
-		destination += service + "/"
-	}
-
-	removeDirectory(destination)
-
-	err := copy.Copy(source, destination)
-	if err != nil {
-		fmt.Printf("Copying generated files to services failed with: %s\n", err.Error())
-		os.Exit(1)
-	}
-}
-
 func lint(skipLint bool, service string) {
 	if skipLint {
 		fmt.Println("Skipping linting. Please do not do this in your final proto definitions shape.")
@@ -95,6 +77,26 @@ func changeGeneratedFilesOwnership() {
 	fmt.Println("Changing generated files ownership: OK")
 }
 
+func copyGeneratedFilesToServices(service string) {
+	source := getProjectRootDir() + outputDirectory + "go/"
+	destination := getProjectRootDir() + "be/services/contracts/"
+
+	if service != "" {
+		source += service + "/"
+		destination += service + "/"
+	}
+
+	removeDirectory(destination)
+
+	err := copy.Copy(source, destination)
+	if err != nil {
+		fmt.Printf("Copying generated files to services failed with: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Println("Copying generated files to services: OK")
+}
+
 func bufCommand(command, service string) *exec.Cmd {
 	args := []string{
 		"run",
@@ -106,7 +108,7 @@ func bufCommand(command, service string) *exec.Cmd {
 	}
 
 	if service != "" {
-		args = append(args, service)
+		args = append(args, "--path", "proto/"+service)
 	}
 
 	return exec.Command("docker", args...)
