@@ -2,6 +2,7 @@ package contracts
 
 import (
 	"fmt"
+	"github.com/otiai10/copy"
 	"os"
 	"os/exec"
 	"strings"
@@ -23,6 +24,25 @@ func Generate(service string, skipLint, skipBreaking bool) {
 	removeDirectory(outputDirectory)
 	compile(service)
 	changeGeneratedFilesOwnership()
+	copyGeneratedFilesToServices(service)
+}
+
+func copyGeneratedFilesToServices(service string) {
+	source := getProjectRootDir() + outputDirectory + "go/"
+	destination := getProjectRootDir() + "be/services/contracts/"
+
+	if service != "" {
+		source += service + "/"
+		destination += service + "/"
+	}
+
+	removeDirectory(destination)
+
+	err := copy.Copy(source, destination)
+	if err != nil {
+		fmt.Printf("Copying generated files to services failed with: %s\n", err.Error())
+		os.Exit(1)
+	}
 }
 
 func lint(skipLint bool, service string) {
@@ -102,7 +122,7 @@ func bufCommandBreaking() *exec.Cmd {
 		protoBuilderImage,
 		"breaking",
 		"--against",
-		".git#branch=main",
+		".git#branch=main,subdir=contracts",
 	)
 }
 
