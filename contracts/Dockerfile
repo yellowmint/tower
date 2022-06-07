@@ -7,7 +7,7 @@ RUN go install github.com/envoyproxy/protoc-gen-validate@v0.6.7
 FROM bufbuild/buf:1.5.0
 
 # install protoc
-#RUN apk update && apk add --no-cache apk add protobuf
+RUN apk update && apk add --no-cache protobuf
 
 # copy golang plugins
 COPY --from=golang-plugins /go/bin/ /usr/local/go/bin/
