@@ -121,6 +121,7 @@ func bufCommandBreaking() *exec.Cmd {
 		getProjectRootDir()+":/workspace",
 		protoBuilderImage,
 		"breaking",
+		"./contracts/",
 		"--against",
 		".git#branch=main,subdir=contracts",
 	)

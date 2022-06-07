@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package accounts.rpcpublic.v1;
 
-import "vendor/validate/validate.proto";
+import "validate/validate.proto";
 
 service AccountsService {
   rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
