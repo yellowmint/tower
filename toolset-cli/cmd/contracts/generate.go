@@ -33,7 +33,7 @@ func lint(skipLint bool, service string) {
 
 	out, err := bufCommand("lint", service).CombinedOutput()
 	if err != nil {
-		fmt.Printf("Linting failed with err: %e\nCommand output:\n%s", err, out)
+		fmt.Printf("Linting failed with: %s\nCommand output:\n%s", err.Error(), out)
 		os.Exit(1)
 	}
 

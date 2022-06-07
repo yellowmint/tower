@@ -1,4 +1,5 @@
 .idea/
+go/
 
 # generated proto
 contracts/gen/
