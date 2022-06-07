@@ -2,21 +2,27 @@ package contracts
 
 import (
 	"fmt"
-	"github.com/docker/docker/client"
 	"os"
 	"os/exec"
+	"strings"
 )
 
-const outputDirectory = "./contracts/gen/"
+const contractsDirectory = "contracts/"
+const outputDirectory = contractsDirectory + "gen/"
+
 const protoBuilderImage = "artdecoction.registry.jetbrains.space/p/wt/tools/proto-builder:0.0.1"
 
 func Generate(service string, skipLint, skipBreaking bool) {
-	lint(skipLint, service)
-	//runBufCommand("breaking --against .git#branch=main")
+	if service == "all" {
+		service = ""
+	}
 
-	//removeDirectory(outputDirectory)
-	//runBufCommand("generate")
-	//removeDirectory(outputDirectory)
+	lint(skipLint, service)
+	breaking(skipBreaking)
+
+	removeDirectory(outputDirectory)
+	compile(service)
+	changeGeneratedFilesOwnership()
 }
 
 func lint(skipLint bool, service string) {
@@ -34,22 +40,96 @@ func lint(skipLint bool, service string) {
 	fmt.Println("Linting: OK")
 }
 
-func bufCommand(command, service string) *exec.Cmd {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+func breaking(skipBreaking bool) {
+	if skipBreaking {
+		fmt.Println("Skipping breaking check. Please do not do this in your final proto definitions shape.")
+		return
+	}
+
+	out, err := bufCommandBreaking().CombinedOutput()
 	if err != nil {
-		fmt.Println("Unable to create docker client")
+		fmt.Printf("Breaking check failed with: %s\nCommand output:\n%s", err.Error(), out)
 		os.Exit(1)
 	}
 
-	//return exec.Command(
-	//	"docker",
-	//	"run",
-	//	"--rm",
-	//	`--volume /home/jack/art/wt/tower/toolset-cli:/workspace`,
-	//	protoBuilderImage,
-	//	command,
-	//	service,
-	//)
+	fmt.Println("Breaking: OK")
+}
+
+func compile(service string) {
+	out, err := bufCommand("generate", service).CombinedOutput()
+	if err != nil {
+		fmt.Printf("Compiling failed with: %s\nCommand output:\n%s", err.Error(), out)
+		os.Exit(1)
+	}
+
+	fmt.Println("Compiling: OK")
+}
+
+func changeGeneratedFilesOwnership() {
+	out, err := bufCommandChangeGeneratedFilesOwnership().CombinedOutput()
+	if err != nil {
+		fmt.Printf("Changing generated files ownership failed with: %s\nCommand output:\n%s", err.Error(), out)
+		os.Exit(1)
+	}
+
+	fmt.Println("Changing generated files ownership: OK")
+}
+
+func bufCommand(command, service string) *exec.Cmd {
+	args := []string{
+		"run",
+		"--rm",
+		"--volume",
+		getProjectRootDir() + contractsDirectory + ":/workspace",
+		protoBuilderImage,
+		command,
+	}
+
+	if service != "" {
+		args = append(args, service)
+	}
+
+	return exec.Command("docker", args...)
+}
+
+func bufCommandBreaking() *exec.Cmd {
+	return exec.Command(
+		"docker",
+		"run",
+		"--rm",
+		"--volume",
+		getProjectRootDir()+":/workspace",
+		protoBuilderImage,
+		"breaking",
+		"--against",
+		".git#branch=main",
+	)
+}
+
+func bufCommandChangeGeneratedFilesOwnership() *exec.Cmd {
+	return exec.Command(
+		"docker",
+		"run",
+		"--rm",
+		"--volume",
+		getProjectRootDir()+contractsDirectory+":/workspace",
+		"--entrypoint",
+		"chown",
+		protoBuilderImage,
+		"-R",
+		fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
+		"./gen/",
+	)
+}
+
+func getProjectRootDir() string {
+	workingDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Cannot get current working directory")
+		os.Exit(1)
+	}
+
+	return strings.ReplaceAll(workingDir, "/toolset-cli", "") + "/"
 }
 
 func removeDirectory(dir string) {
