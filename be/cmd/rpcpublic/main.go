@@ -5,6 +5,7 @@ import (
 	"git.jetbrains.space/artdecoction/wt/tower/lib/config"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/logs"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/tower"
+	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/accountsserver"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -24,14 +25,16 @@ func main() {
 	}
 }
 
-func newRpcServer(app tower.App) *grpc.Server {
+func newRpcServer(app *tower.App) *grpc.Server {
 	unaryInterceptors := grpc.ChainUnaryInterceptor(
-		logs.UnaryDurationInterceptor(app.Logger),
+		logs.UnaryInfoInterceptor(app.Logger),
 	)
 
 	opts := []grpc.ServerOption{unaryInterceptors}
 
 	server := grpc.NewServer(opts...)
+
+	accountsserver.RegisterNewAccountsRpcPublicServer(server, app)
 
 	return server
 }
