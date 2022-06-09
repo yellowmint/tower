@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterNewAccountsRpcPublicServer(server *grpc.Server, app *tower.App) {
-	accountRepo := repository.NewFirestoreAccountRepo(app.FirestoreClient)
+	accountRepo := repository.NewFirestoreAccountRepo(app.FirebaseClients.Firestore)
 	accountService := account.NewService(app, accountRepo)
 	accountServer := transport.NewRpcPublicServer(app, accountService)
 

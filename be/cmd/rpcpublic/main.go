@@ -33,7 +33,7 @@ func newRpcServer(app *tower.App) *grpc.Server {
 		fauth.UnaryAuthInterceptor(
 			false,
 			claims.BasicClaims{},
-			nil,
+			app.FirebaseClients.Auth,
 			[]string{},
 		),
 	)
