@@ -12,7 +12,7 @@ import (
 func RegisterNewAccountsRpcPublicServer(server *grpc.Server, app *tower.App) {
 	accountRepo := repository.NewFirestoreAccountRepo(app.FirestoreClient)
 	accountService := account.NewService(app, accountRepo)
-	accountServer := transport.NewRpcPublicServer(accountService)
+	accountServer := transport.NewRpcPublicServer(app, accountService)
 
 	rpcpublicv1.RegisterAccountsServiceServer(server, accountServer)
 }

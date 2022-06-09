@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"errors"
 	"github.com/blendle/zapdriver"
 	"go.uber.org/zap"
 )
@@ -12,7 +13,7 @@ const (
 	FormatDevelopment           = "development"
 )
 
-func NewLogger(format Format) *zap.Logger {
+func NewLogger(format Format) (*zap.Logger, error) {
 	var logger *zap.Logger
 	var err error
 
@@ -22,16 +23,16 @@ func NewLogger(format Format) *zap.Logger {
 	case FormatDevelopment:
 		logger, err = zap.NewDevelopment()
 	default:
-		panic("cannot determine logger format")
+		return nil, errors.New("cannot determine logger format")
 	}
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return logger
+	return logger, nil
 }
 
-func SyncLogger(logger *zap.Logger) {
-	_ = logger.Sync()
+func SyncLogger(logger *zap.Logger) error {
+	return logger.Sync()
 }

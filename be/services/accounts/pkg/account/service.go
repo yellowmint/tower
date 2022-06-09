@@ -8,6 +8,16 @@ import (
 	"github.com/google/uuid"
 )
 
+var ErrAccountNotFound = tower.Err{
+	ErrorValue:     repository.ErrAccountNotFound,
+	EndUserMessage: "account not found",
+}
+
+var ErrAccountAlreadyCreated = tower.Err{
+	ErrorValue:     repository.ErrAccountAlreadyCreated,
+	EndUserMessage: "account already created",
+}
+
 type Svc struct {
 	app  *tower.App
 	repo repository.AccountRepo
@@ -25,16 +35,10 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 	res, err := s.repo.GetAccountById(ctx, accountId)
 
 	if err == repository.ErrAccountNotFound {
-		return model.Account{}, tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "account not found for given accountId",
-		}
+		return model.Account{}, ErrAccountNotFound
 	}
 	if err != nil {
-		return model.Account{}, tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "unhandled error",
-		}
+		return model.Account{}, tower.UnhandledError(err)
 	}
 
 	return model.AccountFromRepo(res), nil
@@ -43,16 +47,10 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 func (s *Svc) GetByUserId(ctx context.Context, userId uuid.UUID) (model.Account, error) {
 	res, err := s.repo.GetAccountByAuthUserId(ctx, userId)
 	if err == repository.ErrAccountNotFound {
-		return model.Account{}, tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "account not found for given userId",
-		}
+		return model.Account{}, ErrAccountNotFound
 	}
 	if err != nil {
-		return model.Account{}, tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "unhandled error",
-		}
+		return model.Account{}, tower.UnhandledError(err)
 	}
 
 	return model.AccountFromRepo(res), nil
@@ -61,16 +59,10 @@ func (s *Svc) GetByUserId(ctx context.Context, userId uuid.UUID) (model.Account,
 func (s *Svc) Create(ctx context.Context, userId uuid.UUID, name string) error {
 	err := s.repo.CreateAccount(ctx, userId, name)
 	if err == repository.ErrAccountAlreadyCreated {
-		return tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "account already exist for given userId",
-		}
+		return ErrAccountAlreadyCreated
 	}
 	if err != nil {
-		return tower.Err{
-			ErrorValue:     err,
-			EndUserMessage: "unhandled error",
-		}
+		return tower.UnhandledError(err)
 	}
 
 	return nil

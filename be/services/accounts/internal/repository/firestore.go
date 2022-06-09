@@ -3,13 +3,9 @@ package repository
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"errors"
 	"github.com/google/uuid"
 	"time"
 )
-
-var ErrAccountAlreadyCreated = errors.New("account already created")
-var ErrAccountNotFound = errors.New("account not found")
 
 type FirestoreAccountRepo struct {
 	firestoreClient *firestore.Client

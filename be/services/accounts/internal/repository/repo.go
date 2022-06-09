@@ -2,9 +2,13 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"time"
 )
+
+var ErrAccountNotFound = errors.New("account not found")
+var ErrAccountAlreadyCreated = errors.New("account already created")
 
 type AccountRepo interface {
 	GetAccountById(ctx context.Context, playerId uuid.UUID) (AccountRecord, error)
