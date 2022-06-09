@@ -4,6 +4,7 @@ import (
 	"git.jetbrains.space/artdecoction/gt/drun/drun"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/config"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/logs"
+	"git.jetbrains.space/artdecoction/wt/tower/lib/tower"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -11,29 +12,26 @@ import (
 func main() {
 	config.Init()
 
-	logger := logs.NewLogger(config.Get().LoggerFormat)
-	defer logs.SyncLogger(logger)
+	app := tower.NewTowerApp()
+	defer tower.CleanupApp(app)
 
-	printStartInfo(logger)
+	server := newRpcServer(app)
+	port := ":" + config.Get().Port
 
-	server := newRpcServer()
-
-	err := drun.RpcRuntime(server, ":"+config.Get().Port)
+	err := drun.RpcRuntime(server, port)
 	if err != nil {
-		logger.Error("rpc server error", zap.Error(err))
+		app.Logger.Error("rpc server error", zap.Error(err))
 	}
 }
 
-func newRpcServer() *grpc.Server {
-	unaryInterceptors := grpc.ChainUnaryInterceptor()
+func newRpcServer(app tower.App) *grpc.Server {
+	unaryInterceptors := grpc.ChainUnaryInterceptor(
+		logs.UnaryDurationInterceptor(app.Logger),
+	)
 
 	opts := []grpc.ServerOption{unaryInterceptors}
 
 	server := grpc.NewServer(opts...)
 
 	return server
-}
-
-func printStartInfo(logger *zap.Logger) {
-	logger.Info("Tower server starting", zap.String("version", config.Get().Version))
 }
