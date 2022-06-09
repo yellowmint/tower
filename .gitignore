@@ -3,4 +3,4 @@ go/
 
 # generated proto
 contracts/gen/
-be/services/contracts/
+be/contracts/

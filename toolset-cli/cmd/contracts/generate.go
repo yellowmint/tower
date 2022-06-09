@@ -79,7 +79,7 @@ func changeGeneratedFilesOwnership() {
 
 func copyGeneratedFilesToServices(service string) {
 	source := getProjectRootDir() + outputDirectory + "go/"
-	destination := getProjectRootDir() + "be/services/contracts/"
+	destination := getProjectRootDir() + "be/contracts/"
 
 	if service != "" {
 		source += service + "/"

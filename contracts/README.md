@@ -3,7 +3,7 @@ Contracts definitions between servers and clients.
 
 ## Updating contract
 1. Make changes in proto files
-2. Run `./toolset contracts --gen <module>`
+2. Run `./toolset contracts generate`
 
 
 ## Development
