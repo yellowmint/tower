@@ -21,8 +21,9 @@ func main() {
 
 	server := newRpcServer(app)
 	port := ":" + config.Get().Port
+	runtimeKind := config.Get().RuntimeKind
 
-	err := drun.WebRuntime(server, port)
+	err := drun.Runtime(runtimeKind, server, port)
 	if err != nil {
 		app.Logger.Error("rpc server error", zap.Error(err))
 	}
