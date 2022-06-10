@@ -1,0 +1,7 @@
+accounts:
+  url: localhost:4040
+  tls: false
+gcpProjectId: ad-tower
+firebaseEmulator:
+  authHost: 127.0.0.1:9099
+  firestoreHost: 127.0.0.1:8080

@@ -1,4 +1,4 @@
-package integrationconfig
+package support
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"regexp"
 )
 
-func Init() {
+func loadConfig() {
 	viper.AutomaticEnv()
 
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(getIntegrationTestRootDir() + "integrationconfig/")
+	viper.AddConfigPath(getIntegrationTestRootDir() + "support/")
 	viper.SetConfigName("config")
 
 	err := viper.ReadInConfig()

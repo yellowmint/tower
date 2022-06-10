@@ -18,12 +18,17 @@ func UnaryAuthInterceptor(
 ) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if authMockEnabled {
-			testingAuthValue := getHeader(ctx, "xxx-user-id")
-			if testingAuthValue == "" {
+			testAuthUserId := getHeader(ctx, "xxx-auth-user-id")
+			if testAuthUserId == "" {
 				return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 			}
 
-			ctx = setClaimsInCtx(ctx, &auth.Token{UID: testingAuthValue}, claimsService)
+			testAccountId := getHeader(ctx, "xxx-account-id")
+			if testAccountId == "" {
+				return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+			}
+
+			ctx = setClaimsInCtx(ctx, &auth.Token{UID: testAuthUserId}, claimsService)
 			return handler(ctx, req)
 		}
 

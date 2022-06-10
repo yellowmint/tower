@@ -1,9 +1,9 @@
-package accounts
+package support
 
 import (
 	"crypto/tls"
 	"crypto/x509"
-	rpcpublicv1 "git.jetbrains.space/artdecoction/wt/tower/contracts/accounts/rpcpublic/v1"
+	"fmt"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -12,13 +12,15 @@ import (
 	"testing"
 )
 
-func newAccountsClient(t *testing.T) (*grpc.ClientConn, rpcpublicv1.AccountsServiceClient) {
+var gRpcClientConnections []*grpc.ClientConn
+
+func (s *Support) NewGrpcClientConn(t *testing.T, service string) *grpc.ClientConn {
 	var opts []grpc.DialOption
 
-	host := viper.GetString("accounts.url")
+	host := viper.GetString(service + ".url")
 	opts = append(opts, grpc.WithAuthority(host))
 
-	if viper.GetBool("accounts.tls") {
+	if viper.GetBool(service + "tls") {
 		systemRoots, err := x509.SystemCertPool()
 		assert.NoError(t, err)
 
@@ -31,12 +33,16 @@ func newAccountsClient(t *testing.T) (*grpc.ClientConn, rpcpublicv1.AccountsServ
 	cc, err := grpc.Dial(host, opts...)
 	assert.NoError(t, err)
 
-	client := rpcpublicv1.NewAccountsServiceClient(cc)
+	gRpcClientConnections = append(gRpcClientConnections, cc)
 
-	return cc, client
+	return cc
 }
 
-func closeClient(t *testing.T, cc *grpc.ClientConn) {
-	err := cc.Close()
-	assert.NoError(t, err)
+func closeGrpcClientConnections() {
+	for _, connection := range gRpcClientConnections {
+		err := connection.Close()
+		if err != nil {
+			fmt.Printf("error closing grpc client connection %e\n", err)
+		}
+	}
 }

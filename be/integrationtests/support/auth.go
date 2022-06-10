@@ -1,11 +1,19 @@
-package integrationtests
+package support
 
 import (
 	"context"
 	"firebase.google.com/go/v4/auth"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/tower"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
 )
+
+func (s *Support) AuthorizeInContext(ctx context.Context, authUserId string, accountId uuid.UUID) context.Context {
+	ctx = metadata.AppendToOutgoingContext(ctx, "xxx-auth-user-id", authUserId)
+	ctx = metadata.AppendToOutgoingContext(ctx, "xxx-account-id", accountId.String())
+
+	return ctx
+}
 
 const AccountEmail = "bubble@decoct.dev"
 
@@ -29,8 +37,4 @@ func CreateTestUser(ctx context.Context, app tower.App) *auth.UserRecord {
 	}
 
 	return user
-}
-
-func AuthUser(ctx context.Context, id string) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, "xxx-user-id", id)
 }
