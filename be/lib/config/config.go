@@ -26,6 +26,8 @@ func Init() {
 		viper.SetConfigName("prod")
 	case Dev:
 		viper.SetConfigName("dev")
+	case IntegrationTest:
+		viper.SetConfigName("integration-test")
 	}
 
 	loadConfig()
@@ -35,6 +37,8 @@ func getMode() mode {
 	switch viper.GetString("mode") {
 	case "prod":
 		return Prod
+	case "integrationTest":
+		return IntegrationTest
 	default:
 		return Dev
 	}

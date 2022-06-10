@@ -21,7 +21,7 @@ func TestAccounts(t *testing.T) {
 	client := rpcpublicv1.NewAccountsServiceClient(cc)
 
 	authUserId := fmt.Sprintf("%d", time.Now().UTC().Unix())
-	name := "Tommy"
+	name := "Tommy55"
 	accountId := ""
 
 	t.Run("GetAccount not found", func(t *testing.T) {

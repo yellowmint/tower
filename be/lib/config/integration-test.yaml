@@ -1,6 +1,8 @@
-port: 4100
+port: 9100
+runtimeKind: gRPC
 loggerFormat: development
 firebaseEmulator:
   enable: true
   authHost: 127.0.0.1:9099
   firestoreHost: 127.0.0.1:8080
+authenticationMockEnabled: true

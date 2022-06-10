@@ -9,8 +9,9 @@ import (
 type mode string
 
 const (
-	Dev  mode = "dev"
-	Prod      = "prod"
+	Dev             mode = "dev"
+	Prod                 = "prod"
+	IntegrationTest      = "integrationTest"
 )
 
 type LoggerFormat string

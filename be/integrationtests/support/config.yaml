@@ -1,5 +1,5 @@
 accounts:
-  url: localhost:4040
+  url: localhost:9100
   tls: false
 gcpProjectId: ad-tower
 firebaseEmulator:
