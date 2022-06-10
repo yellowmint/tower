@@ -31,7 +31,7 @@ func newRpcServer(app *tower.App) *grpc.Server {
 	unaryInterceptors := grpc.ChainUnaryInterceptor(
 		logs.UnaryInfoInterceptor(app.Logger),
 		fauth.UnaryAuthInterceptor(
-			false,
+			config.Get().AuthenticationMockEnabled,
 			claims.BasicClaims{},
 			app.FirebaseClients.Auth,
 			[]string{},

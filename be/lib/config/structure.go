@@ -15,9 +15,10 @@ const (
 type LoggerFormat string
 
 type Config struct {
-	Version          string
-	Port             string
-	LoggerFormat     logs.Format
-	GcpProjectId     string
-	FirebaseEmulator fbase.EmulatorConfig
+	Version                   string
+	Port                      string
+	LoggerFormat              logs.Format
+	GcpProjectId              string
+	FirebaseEmulator          fbase.EmulatorConfig
+	AuthenticationMockEnabled bool
 }

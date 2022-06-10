@@ -21,6 +21,6 @@ func TestAccountsInterceptors(t *testing.T) {
 		request := &rpcpublicv1.GetAccountRequest{}
 
 		_, err := client.GetAccount(ctx, request)
-		assert.Equal(t, codes.Unauthenticated, status.Code(err), status.Code(err))
+		assert.Equal(t, codes.Unauthenticated.String(), status.Code(err).String())
 	})
 }
