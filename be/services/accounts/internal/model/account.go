@@ -12,7 +12,7 @@ type Account struct {
 
 func AccountFromRepo(model repository.AccountRecord) Account {
 	return Account{
-		AccountId: model.AccountId,
+		AccountId: uuid.MustParse(model.AccountId),
 		Name:      model.Name,
 	}
 }

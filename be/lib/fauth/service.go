@@ -11,7 +11,7 @@ type ClaimsService interface {
 
 const ClaimsContextKey string = "user-claims"
 
-func setUserInCtx(ctx context.Context, token *auth.Token, claimsService ClaimsService) context.Context {
+func setClaimsInCtx(ctx context.Context, token *auth.Token, claimsService ClaimsService) context.Context {
 	claims := claimsService.ClaimsFromToken(token)
 	return context.WithValue(ctx, ClaimsContextKey, claims)
 }

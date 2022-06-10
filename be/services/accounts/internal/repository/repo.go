@@ -11,16 +11,16 @@ var ErrAccountNotFound = errors.New("account not found")
 var ErrAccountAlreadyCreated = errors.New("account already created")
 
 type AccountRepo interface {
-	GetAccountById(ctx context.Context, playerId uuid.UUID) (AccountRecord, error)
-	GetAccountByAuthUserId(ctx context.Context, userId uuid.UUID) (AccountRecord, error)
-	CreateAccount(ctx context.Context, userId uuid.UUID, name string) error
-	DeleteAccountByAuthUserId(ctx context.Context, userId uuid.UUID) error
+	GetAccountById(ctx context.Context, accountId uuid.UUID) (AccountRecord, error)
+	GetAccountByAuthUserId(ctx context.Context, authUserId string) (AccountRecord, error)
+	CreateAccount(ctx context.Context, authUserId string, name string) error
+	DeleteAccountById(ctx context.Context, accountId uuid.UUID) error
 }
 
 type AccountRecord struct {
 	recordId   string
-	AccountId  uuid.UUID
-	AuthUserId uuid.UUID
+	AccountId  string
+	AuthUserId string
 	Name       string
 	CreatedAt  time.Time
 	DeletedAt  *time.Time

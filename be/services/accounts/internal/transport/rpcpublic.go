@@ -40,9 +40,9 @@ func (s rpcPublicServer) GetAccount(ctx context.Context, req *rpcpublicv1.GetAcc
 }
 
 func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetMyAccountRequest) (*rpcpublicv1.GetMyAccountResponse, error) {
-	userId := claims.GetUserIdFromCtx(ctx)
+	authUserId := claims.GetAuthUserIdFromCtx(ctx)
 
-	res, err := s.accountService.GetByUserId(ctx, uuid.MustParse(userId))
+	res, err := s.accountService.GetByAuthUserId(ctx, authUserId)
 	if err != nil {
 		return nil, s.translateError(err)
 	}
@@ -54,9 +54,9 @@ func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetM
 }
 
 func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.CreateMyAccountRequest) (*rpcpublicv1.CreateMyAccountResponse, error) {
-	userId := claims.GetUserIdFromCtx(ctx)
+	authUserId := claims.GetAuthUserIdFromCtx(ctx)
 
-	err := s.accountService.Create(ctx, uuid.MustParse(userId), req.GetName())
+	err := s.accountService.Create(ctx, authUserId, req.GetName())
 	if err != nil {
 		return nil, s.translateError(err)
 	}
@@ -65,9 +65,9 @@ func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.C
 }
 
 func (s rpcPublicServer) DeleteMyAccount(ctx context.Context, req *rpcpublicv1.DeleteMyAccountRequest) (*rpcpublicv1.DeleteMyAccountResponse, error) {
-	userId := claims.GetUserIdFromCtx(ctx)
+	accountId := claims.GetAccountIdFromCtx(ctx)
 
-	err := s.accountService.DeleteByUserId(ctx, uuid.MustParse(userId))
+	err := s.accountService.DeleteId(ctx, accountId)
 	if err != nil {
 		return nil, s.translateError(err)
 	}

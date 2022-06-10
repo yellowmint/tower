@@ -23,7 +23,7 @@ func UnaryAuthInterceptor(
 				return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 			}
 
-			ctx = setUserInCtx(ctx, &auth.Token{UID: testingAuthValue}, claimsService)
+			ctx = setClaimsInCtx(ctx, &auth.Token{UID: testingAuthValue}, claimsService)
 			return handler(ctx, req)
 		}
 
@@ -47,7 +47,7 @@ func addDataToContext(ctx context.Context, claimsService ClaimsService, authClie
 		return ctx, false
 	}
 
-	ctx = setUserInCtx(ctx, token, claimsService)
+	ctx = setClaimsInCtx(ctx, token, claimsService)
 
 	return ctx, true
 }

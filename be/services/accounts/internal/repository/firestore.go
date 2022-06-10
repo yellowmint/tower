@@ -34,7 +34,7 @@ func (f FirestoreAccountRepo) GetAccountById(ctx context.Context, accountId uuid
 	return res, nil
 }
 
-func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUserId uuid.UUID) (res AccountRecord, err error) {
+func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUserId string) (res AccountRecord, err error) {
 	doc, err := f.accountByAuthUserId(ctx, authUserId)
 	if err != nil {
 		return AccountRecord{}, err
@@ -49,7 +49,7 @@ func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUs
 	return res, nil
 }
 
-func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId uuid.UUID, name string) error {
+func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId string, name string) error {
 	_, err := f.accountByAuthUserId(ctx, authUserId)
 	if err == nil {
 		return ErrAccountAlreadyCreated
@@ -59,7 +59,7 @@ func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId uuid
 	}
 
 	player := AccountRecord{
-		AccountId:  uuid.New(),
+		AccountId:  uuid.New().String(),
 		AuthUserId: authUserId,
 		Name:       name,
 		CreatedAt:  time.Now().UTC(),
@@ -70,8 +70,8 @@ func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId uuid
 	return err
 }
 
-func (f FirestoreAccountRepo) DeleteAccountByAuthUserId(ctx context.Context, authUserId uuid.UUID) error {
-	doc, err := f.accountByAuthUserId(ctx, authUserId)
+func (f FirestoreAccountRepo) DeleteAccountById(ctx context.Context, accountId uuid.UUID) error {
+	doc, err := f.accountById(ctx, accountId)
 	if err == ErrAccountNotFound {
 		return nil
 	}
@@ -96,7 +96,7 @@ func (f FirestoreAccountRepo) accountsCollection() *firestore.CollectionRef {
 	return f.firestoreClient.Collection("accounts:accounts")
 }
 
-func (f FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserId uuid.UUID) (*firestore.DocumentSnapshot, error) {
+func (f FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserId string) (*firestore.DocumentSnapshot, error) {
 	docs, err := f.accountsCollection().
 		Where("AuthUserId", "==", authUserId).
 		Where("DeletedAt", "==", nil).
@@ -117,7 +117,7 @@ func (f FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserI
 
 func (f FirestoreAccountRepo) accountById(ctx context.Context, accountId uuid.UUID) (*firestore.DocumentSnapshot, error) {
 	docs, err := f.accountsCollection().
-		Where("AccountId", "==", accountId).
+		Where("AccountId", "==", accountId.String()).
 		Where("DeletedAt", "==", nil).
 		Limit(1).
 		Documents(ctx).

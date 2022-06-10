@@ -4,10 +4,12 @@ import (
 	"context"
 	"firebase.google.com/go/v4/auth"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fauth"
+	"github.com/google/uuid"
 )
 
 type BasicClaims struct {
-	UserId      string
+	AuthUserId  string
+	AccountId   string
 	DisplayName string
 }
 
@@ -17,8 +19,14 @@ func (BasicClaims) ClaimsFromToken(token *auth.Token) interface{} {
 		name = ""
 	}
 
+	accountId, ok := token.Claims["accountId"].(string)
+	if !ok {
+		accountId = ""
+	}
+
 	return BasicClaims{
-		UserId:      token.UID,
+		AuthUserId:  token.UID,
+		AccountId:   accountId,
 		DisplayName: name,
 	}
 }
@@ -32,11 +40,20 @@ func GetClaimsFromCtx(ctx context.Context) (BasicClaims, bool) {
 	return BasicClaims{}, false
 }
 
-func GetUserIdFromCtx(ctx context.Context) string {
+func GetAuthUserIdFromCtx(ctx context.Context) string {
 	claims, ok := GetClaimsFromCtx(ctx)
 	if !ok {
 		return ""
 	}
 
-	return claims.UserId
+	return claims.AuthUserId
+}
+
+func GetAccountIdFromCtx(ctx context.Context) uuid.UUID {
+	claims, ok := GetClaimsFromCtx(ctx)
+	if !ok {
+		return uuid.UUID{}
+	}
+
+	return uuid.MustParse(claims.AccountId)
 }

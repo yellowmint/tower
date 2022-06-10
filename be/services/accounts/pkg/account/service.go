@@ -44,8 +44,8 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 	return model.AccountFromRepo(res), nil
 }
 
-func (s *Svc) GetByUserId(ctx context.Context, userId uuid.UUID) (model.Account, error) {
-	res, err := s.repo.GetAccountByAuthUserId(ctx, userId)
+func (s *Svc) GetByAuthUserId(ctx context.Context, authUserId string) (model.Account, error) {
+	res, err := s.repo.GetAccountByAuthUserId(ctx, authUserId)
 	if err == repository.ErrAccountNotFound {
 		return model.Account{}, ErrAccountNotFound
 	}
@@ -56,8 +56,8 @@ func (s *Svc) GetByUserId(ctx context.Context, userId uuid.UUID) (model.Account,
 	return model.AccountFromRepo(res), nil
 }
 
-func (s *Svc) Create(ctx context.Context, userId uuid.UUID, name string) error {
-	err := s.repo.CreateAccount(ctx, userId, name)
+func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
+	err := s.repo.CreateAccount(ctx, authUserId, name)
 	if err == repository.ErrAccountAlreadyCreated {
 		return ErrAccountAlreadyCreated
 	}
@@ -68,6 +68,6 @@ func (s *Svc) Create(ctx context.Context, userId uuid.UUID, name string) error {
 	return nil
 }
 
-func (s *Svc) DeleteByUserId(ctx context.Context, userId uuid.UUID) error {
-	return s.repo.DeleteAccountByAuthUserId(ctx, userId)
+func (s *Svc) DeleteId(ctx context.Context, accountId uuid.UUID) error {
+	return s.repo.DeleteAccountById(ctx, accountId)
 }
