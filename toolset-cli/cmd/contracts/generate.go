@@ -85,7 +85,7 @@ func copyGeneratedFilesToServices(service string) {
 	)
 	copyFiles(
 		getProjectRootDir()+outputDirectory+"javascript/",
-		getProjectRootDir()+"fe/contracts/",
+		getProjectRootDir()+"fe/src/contracts/",
 		service,
 	)
 

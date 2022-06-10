@@ -3,4 +3,4 @@ contracts/gen/
 contracts/ts-compiler/node_modules/
 
 be/contracts/
-fe/contracts/
+fe/src/contracts/
