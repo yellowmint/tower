@@ -5,13 +5,6 @@
 ### Tools version manager
 Use https://asdf-vm.com/guide/getting-started.html with plugin for nodejs and golang
 
-### Firebase emulator
-Install java
-```shell
-sudo apt update
-sudo apt install default-jdk
-```
-
 ### Backend
 #### Golang
 Private golang packages
