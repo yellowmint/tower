@@ -1,0 +1,17 @@
+{
+  "name": "ts-compiler",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@improbable-eng/grpc-web": "^0.15.0",
+    "@types/google-protobuf": "^3.15.6",
+    "google-protobuf": "^3.20.1",
+    "ts-protoc-gen": "^0.15.0"
+  }
+}

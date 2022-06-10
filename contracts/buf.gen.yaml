@@ -5,13 +5,20 @@ managed:
     default: git.jetbrains.space/artdecoction/wt/tower/contracts
 plugins:
   - name: go
-    out: gen/go
+    out: gen/golang
     opt: paths=source_relative
   - name: go-grpc
-    out: gen/go
+    out: gen/golang
     opt: paths=source_relative
   - name: validate
-    out: gen/go
+    out: gen/golang
     opt:
       - paths=source_relative
       - lang=go
+  - name: js
+    out: gen/javascript
+    opt: import_style=commonjs,binary
+  - name: ts
+    out: gen/javascript
+    opt: service=grpc-web
+    path: ./ts-compiler/node_modules/.bin/protoc-gen-ts

@@ -11,7 +11,7 @@ import (
 const contractsDirectory = "contracts/"
 const outputDirectory = contractsDirectory + "gen/"
 
-const protoBuilderImage = "artdecoction.registry.jetbrains.space/p/wt/tools/proto-builder:0.0.1"
+const protoBuilderImage = "artdecoction.registry.jetbrains.space/p/wt/tools/proto-builder:0.1.0"
 
 func Generate(service string, skipLint, skipBreaking bool) {
 	if service == "all" {
@@ -78,9 +78,21 @@ func changeGeneratedFilesOwnership() {
 }
 
 func copyGeneratedFilesToServices(service string) {
-	source := getProjectRootDir() + outputDirectory + "go/"
-	destination := getProjectRootDir() + "be/contracts/"
+	copyFiles(
+		getProjectRootDir()+outputDirectory+"golang/",
+		getProjectRootDir()+"be/contracts/",
+		service,
+	)
+	copyFiles(
+		getProjectRootDir()+outputDirectory+"javascript/",
+		getProjectRootDir()+"fe/contracts/",
+		service,
+	)
 
+	fmt.Println("Copying generated files to services: OK")
+}
+
+func copyFiles(source, destination, service string) {
 	if service != "" {
 		source += service + "/"
 		destination += service + "/"
@@ -93,8 +105,6 @@ func copyGeneratedFilesToServices(service string) {
 		fmt.Printf("Copying generated files to services failed with: %s\n", err.Error())
 		os.Exit(1)
 	}
-
-	fmt.Println("Copying generated files to services: OK")
 }
 
 func bufCommand(command, service string) *exec.Cmd {
