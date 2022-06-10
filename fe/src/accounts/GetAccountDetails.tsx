@@ -5,7 +5,7 @@ import {GetAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 export const GetAccountDetails: React.FC = () => {
     const handleClick = () => {
         console.log("info")
-        const client = new AccountsServiceClient("http://localhost:4040")
+        const client = new AccountsServiceClient(process.env.REACT_APP_ACCOUNT_SERVICE_URL!)
         const req = new GetAccountRequest()
 
         client.getAccount(req, (err, resp) => {
