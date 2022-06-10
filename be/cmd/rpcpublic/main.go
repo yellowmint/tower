@@ -7,6 +7,7 @@ import (
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fauth/claims"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/logs"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/tower"
+	"git.jetbrains.space/artdecoction/wt/tower/lib/validation"
 	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/accountsserver"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -36,6 +37,7 @@ func newRpcServer(app *tower.App) *grpc.Server {
 			app.FirebaseClients.Auth,
 			[]string{},
 		),
+		validation.UnaryValidationInterceptor(app.Logger),
 	)
 
 	opts := []grpc.ServerOption{unaryInterceptors}
