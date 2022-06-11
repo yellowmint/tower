@@ -12,6 +12,7 @@
     "@types/node": "^16.11.39",
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
+    "browser-headers": "^0.4.1",
     "firebaseui": "^6.0.1",
     "google-protobuf": "^3.20.1",
     "react": "^18.1.0",

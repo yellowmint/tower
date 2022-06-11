@@ -1,7 +1,8 @@
 import {firebaseAuth} from '../firebase/firebase'
-import React, {useEffect, useState} from "react"
+import {useEffect} from "react"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider} from "firebase/auth"
 import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
+import {AuthContextActionKind, useAuth} from "./AuthContextProvider"
 
 const uiConfig = {
     signInFlow: 'popup',
@@ -13,17 +14,21 @@ const uiConfig = {
     ],
 }
 
-export const Auth: React.FC = () => {
-    const [isSignedIn, setIsSignedIn] = useState(false)
+export const SignIn = () => {
+    const auth = useAuth()
 
     useEffect(() => {
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(user => {
-            setIsSignedIn(!!user)
+            if (user) {
+                auth.dispatch!({type: AuthContextActionKind.SignedIn, payload: {user: user}})
+            } else {
+                auth.dispatch!({type: AuthContextActionKind.SignedOut})
+            }
         })
         return () => unregisterAuthObserver()
-    }, [])
+    }, [auth.dispatch])
 
-    if (!isSignedIn) {
+    if (!auth.user) {
         return (
             <div>
                 <p>Please sign-in:</p>
@@ -34,7 +39,7 @@ export const Auth: React.FC = () => {
 
     return (
         <div>
-            <p>Welcome {firebaseAuth.currentUser!.displayName}!</p>
+            <p>Welcome {auth.user.displayName}!</p>
             <button onClick={() => firebaseAuth.signOut()}>Sign-out</button>
         </div>
     )

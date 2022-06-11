@@ -1,14 +1,12 @@
-import React from "react"
-import {AccountsServiceClient} from "../contracts/accounts/rpcpublic/v1/accounts_pb_service"
 import {GetAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
+import {useBackend} from "../backend/BackendContextProvider"
 
-export const GetAccountDetails: React.FC = () => {
+export const GetAccountDetails = () => {
+    const be = useBackend()
+
     const handleClick = () => {
-        console.log("info")
-        const client = new AccountsServiceClient(process.env.REACT_APP_ACCOUNT_SERVICE_URL!)
         const req = new GetAccountRequest()
-
-        client.getAccount(req, (err, resp) => {
+        be.services.accounts.getAccount(req, be.headers, (err, resp) => {
             console.log("err: ", err)
             console.log("resp: ", resp)
         })
