@@ -1,8 +1,8 @@
 import {firebaseAuth} from '../firebase/firebase'
-import {useEffect} from "react"
+import {useEffect, useState} from "react"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider} from "firebase/auth"
 import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
-import {AuthContextActionKind, useAuth} from "./AuthContextProvider"
+import {BackendContextActionKind, useBackend} from "../backend/BackendContextProvider"
 
 const uiConfig = {
     signInFlow: 'popup',
@@ -14,33 +14,59 @@ const uiConfig = {
     ],
 }
 
+enum SignInState {
+    Loading = "LOADING",
+    SignedIn = "SIGNED_IN",
+    SignedOut = "SIGNED_OUT"
+}
+
 export const SignIn = () => {
-    const auth = useAuth()
+    const [isSignedIn, setSignedIn] = useState(SignInState.Loading)
+    const backend = useBackend()
 
-    useEffect(() => {
-        const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(user => {
-            if (user) {
-                auth.dispatch!({type: AuthContextActionKind.SignedIn, payload: {user: user}})
-            } else {
-                auth.dispatch!({type: AuthContextActionKind.SignedOut})
-            }
-        })
-        return () => unregisterAuthObserver()
-    }, [auth.dispatch])
-
-    if (!auth.user) {
-        return (
-            <div>
-                <p>Please sign-in:</p>
-                <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebaseAuth}/>
-            </div>
-        )
+    const signIn = (token: string) => {
+        setSignedIn(SignInState.SignedIn)
+        backend.dispatch!({type: BackendContextActionKind.AuthChanged, payload: {jwt: token}})
     }
 
-    return (
-        <div>
-            <p>Welcome {auth.user.displayName}!</p>
-            <button onClick={() => firebaseAuth.signOut()}>Sign-out</button>
-        </div>
-    )
+    const signOut = () => {
+        setSignedIn(SignInState.SignedOut)
+        backend.dispatch!({type: BackendContextActionKind.AuthChanged, payload: {jwt: null}})
+    }
+
+    console.log("headers", backend.headers)
+
+    useEffect(() => {
+        const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
+            if (!authUser) return signOut()
+
+            authUser.getIdToken()
+                .then(signIn)
+                .catch(signOut)
+        })
+        return () => unregisterAuthObserver()
+    })
+
+    switch (isSignedIn) {
+        case SignInState.Loading:
+            return (
+                <div>Loading...</div>
+            )
+
+        case SignInState.SignedOut:
+            return (
+                <div>
+                    <p>Please sign-in:</p>
+                    <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebaseAuth}/>
+                </div>
+            )
+
+        case SignInState.SignedIn:
+            return (
+                <div>
+                    <p>Welcome!</p>
+                    <button onClick={() => firebaseAuth.signOut()}>Sign-out</button>
+                </div>
+            )
+    }
 }

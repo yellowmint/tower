@@ -4,20 +4,16 @@ import './App.css'
 import {GetAccountDetails} from "./accounts/GetAccountDetails"
 import {SignIn} from "./auth/SignIn"
 import {BackendContextProvider} from "./backend/BackendContextProvider"
-import {AuthContextProvider} from "./auth/AuthContextProvider"
 
 function App() {
     return (
         <div className="App">
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo"/>
-                <AuthContextProvider>
+                <BackendContextProvider>
                     <SignIn/>
-
-                    <BackendContextProvider>
-                        <GetAccountDetails/>
-                    </BackendContextProvider>
-                </AuthContextProvider>
+                    <GetAccountDetails/>
+                </BackendContextProvider>
             </header>
         </div>
     )
