@@ -1,3 +1,4 @@
+import {Button} from "@mui/material"
 import {GetAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 import {useBackend} from "../backend/BackendContextProvider"
 
@@ -14,7 +15,7 @@ export const GetAccountDetails = () => {
 
     return (
         <div>
-            <button onClick={handleClick}>Get account info</button>
+            <Button onClick={handleClick}>Get account info</Button>
         </div>
     )
 }

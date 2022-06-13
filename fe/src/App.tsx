@@ -1,22 +1,37 @@
-import React from 'react'
-import logo from './logo.svg'
-import './App.css'
+import {Box, Container, createTheme, CssBaseline, ThemeProvider, Typography} from "@mui/material"
+import React from "react"
 import {GetAccountDetails} from "./accounts/GetAccountDetails"
 import {SignIn} from "./auth/SignIn"
 import {BackendContextProvider} from "./backend/BackendContextProvider"
 
-function App() {
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+    },
+})
+
+export const App = () => {
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo"/>
+        <>
+            <ThemeProvider theme={darkTheme}>
+                <CssBaseline/>
                 <BackendContextProvider>
-                    <SignIn/>
-                    <GetAccountDetails/>
+                    <Container component="main" maxWidth="md">
+                        <Box
+                            sx={{
+                                marginTop: 15,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Typography component="h1" variant="h5">Tower</Typography>
+                        </Box>
+                        <SignIn/>
+                        <GetAccountDetails/>
+                    </Container>
                 </BackendContextProvider>
-            </header>
-        </div>
+            </ThemeProvider>
+        </>
     )
 }
-
-export default App

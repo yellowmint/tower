@@ -3,7 +3,7 @@ import {useEffect, useState} from "react"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider, IdTokenResult} from "firebase/auth"
 import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
 import {BackendContextActions, useBackend} from "../backend/BackendContextProvider"
-import {Registration} from "./Registration"
+import {Registration, RegistrationProps} from "./Registration"
 
 const uiConfig = {
     signInFlow: 'popup',
@@ -26,9 +26,9 @@ enum authStatuses {
 }
 
 export const SignIn = () => {
-    const [authStatus, setAuthStatus] = useState<authStatuses>(authStatuses.Loading)
-    const [registrationData, setRegistrationData] = useState<{ token: string, name: string | undefined | null } | null>(null)
     const backend = useBackend()
+    const [authStatus, setAuthStatus] = useState<authStatuses>(authStatuses.Loading)
+    const [registrationData, setRegistrationData] = useState<RegistrationProps | null>(null)
 
     const signIn = (tokenResult: IdTokenResult) => {
         if (tokenResult.claims["accountId"]) {
@@ -38,7 +38,14 @@ export const SignIn = () => {
         }
 
         setAuthStatus(authStatuses.Registration)
-        setRegistrationData({token: tokenResult.token, name: firebaseAuth.currentUser?.displayName})
+        setRegistrationData({
+            token: tokenResult.token,
+            initName: firebaseAuth.currentUser!.displayName,
+            successCallback: () => {
+                firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signOut)
+                console.log("REFRESH")
+            }
+        })
     }
 
     const signOut = () => {
@@ -50,9 +57,7 @@ export const SignIn = () => {
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
             if (!authUser) return signOut()
 
-            authUser.getIdTokenResult()
-                .then(signIn)
-                .catch(signOut)
+            authUser.getIdTokenResult().then(signIn).catch(signOut)
         })
         return () => unregisterAuthObserver()
     })
@@ -80,6 +85,6 @@ export const SignIn = () => {
             )
 
         case authStatuses.Registration:
-            return <Registration/>
+            return <Registration {...registrationData!} />
     }
 }
