@@ -1,59 +1,69 @@
-import {firebaseAuth} from '../firebase/firebase'
+import {firebaseAuth} from "../firebase/firebase"
 import {useEffect, useState} from "react"
-import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider} from "firebase/auth"
+import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider, IdTokenResult} from "firebase/auth"
 import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
-import {BackendContextActionKind, useBackend} from "../backend/BackendContextProvider"
+import {BackendContextActions, useBackend} from "../backend/BackendContextProvider"
+import {Registration} from "./Registration"
 
 const uiConfig = {
     signInFlow: 'popup',
     signInSuccessUrl: '/signedIn',
     signInOptions: [
-        EmailAuthProvider.PROVIDER_ID,
         GoogleAuthProvider.PROVIDER_ID,
         FacebookAuthProvider.PROVIDER_ID,
+        {
+            provider: EmailAuthProvider.PROVIDER_ID,
+            requireDisplayName: false,
+        },
     ],
 }
 
-enum SignInState {
+enum authStatuses {
     Loading = "LOADING",
     SignedIn = "SIGNED_IN",
-    SignedOut = "SIGNED_OUT"
+    SignedOut = "SIGNED_OUT",
+    Registration = "REGISTRATION",
 }
 
 export const SignIn = () => {
-    const [isSignedIn, setSignedIn] = useState(SignInState.Loading)
+    const [authStatus, setAuthStatus] = useState<authStatuses>(authStatuses.Loading)
+    const [registrationData, setRegistrationData] = useState<{ token: string, name: string | undefined | null } | null>(null)
     const backend = useBackend()
 
-    const signIn = (token: string) => {
-        setSignedIn(SignInState.SignedIn)
-        backend.dispatch!({type: BackendContextActionKind.AuthChanged, payload: {jwt: token}})
+    const signIn = (tokenResult: IdTokenResult) => {
+        if (tokenResult.claims["accountId"]) {
+            setAuthStatus(authStatuses.SignedIn)
+            backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
+            return
+        }
+
+        setAuthStatus(authStatuses.Registration)
+        setRegistrationData({token: tokenResult.token, name: firebaseAuth.currentUser?.displayName})
     }
 
     const signOut = () => {
-        setSignedIn(SignInState.SignedOut)
-        backend.dispatch!({type: BackendContextActionKind.AuthChanged, payload: {jwt: null}})
+        setAuthStatus(authStatuses.SignedOut)
+        backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
     }
-
-    console.log("headers", backend.headers)
 
     useEffect(() => {
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
             if (!authUser) return signOut()
 
-            authUser.getIdToken()
+            authUser.getIdTokenResult()
                 .then(signIn)
                 .catch(signOut)
         })
         return () => unregisterAuthObserver()
     })
 
-    switch (isSignedIn) {
-        case SignInState.Loading:
+    switch (authStatus) {
+        case authStatuses.Loading:
             return (
                 <div>Loading...</div>
             )
 
-        case SignInState.SignedOut:
+        case authStatuses.SignedOut:
             return (
                 <div>
                     <p>Please sign-in:</p>
@@ -61,12 +71,15 @@ export const SignIn = () => {
                 </div>
             )
 
-        case SignInState.SignedIn:
+        case authStatuses.SignedIn:
             return (
                 <div>
                     <p>Welcome!</p>
                     <button onClick={() => firebaseAuth.signOut()}>Sign-out</button>
                 </div>
             )
+
+        case authStatuses.Registration:
+            return <Registration/>
     }
 }

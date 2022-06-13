@@ -19,16 +19,16 @@ const initialState: BackendContextType = {
     dispatch: undefined,
 }
 
-export enum BackendContextActionKind {
+export enum BackendContextActions {
     AuthChanged = "AUTH_CHANGED",
 }
 
 type BackendContextAction = { type: string, payload: any }
-    | { type: BackendContextActionKind.AuthChanged, payload: { jwt: string } }
+    | { type: BackendContextActions.AuthChanged, payload: { jwt: string } }
 
 const backendReducer = (state: BackendContextType, action: BackendContextAction): BackendContextType => {
     switch (action.type) {
-        case BackendContextActionKind.AuthChanged:
+        case BackendContextActions.AuthChanged:
             return authChanged(state, action.payload.jwt)
 
         default:
