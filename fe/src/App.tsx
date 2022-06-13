@@ -20,6 +20,7 @@ export const App = () => {
                         <Box
                             sx={{
                                 marginTop: 15,
+                                marginBottom: 10,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',

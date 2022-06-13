@@ -63,15 +63,16 @@ export const Registration = (props: RegistrationProps) => {
                         required: true,
                         minLength: 6,
                         maxLength: 16,
-                        pattern: /^[a-zA-Z0-9]+$/,
+                        pattern: /^[a-zA-Z\d]+$/,
                     }}
                     render={({field}) => <Input {...field} />}
                 />
-                <FormHelperText>
-                    {errors.name?.type === "required" && "Name is required"}
+                <FormHelperText error>
+                    {!errors.name && "."}
+                    {errors.name?.type === "required" && "Field is required"}
                     {errors.name?.type === "minLength" && "Minimum length is 6"}
                     {errors.name?.type === "maxLength" && "Max length is 16"}
-                    {errors.name?.type === "pattern" && "Name can contain only letters and digits"}
+                    {errors.name?.type === "pattern" && "Can contain only letters and digits"}
                 </FormHelperText>
             </FormGroup>
             <Button type="submit" fullWidth variant="contained" sx={{mt: 3, mb: 2}}>Submit</Button>

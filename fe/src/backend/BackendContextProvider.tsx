@@ -1,21 +1,23 @@
-import {createContext, Dispatch, ReactNode, useContext, useReducer} from "react"
-import {AccountsServiceClient} from "../contracts/accounts/rpcpublic/v1/accounts_pb_service"
 import {BrowserHeaders} from "browser-headers"
+import {createContext, Dispatch, ReactNode, useContext, useReducer} from "react"
 import packageJSON from "../../package.json"
+import {AccountsServiceClient} from "../contracts/accounts/rpcpublic/v1/accounts_pb_service"
 
 type BackendContextType = {
     headers: BrowserHeaders,
     services: {
         accounts: AccountsServiceClient
     },
+    isAuthorized: boolean,
     dispatch: Dispatch<BackendContextAction> | undefined
 } | undefined
 
 const initialState: BackendContextType = {
     headers: new BrowserHeaders({"app-version": `tower-spa:v${packageJSON.version}`}),
     services: {
-        accounts: new AccountsServiceClient(process.env.REACT_APP_ACCOUNT_SERVICE_URL!)
+        accounts: new AccountsServiceClient(process.env.REACT_APP_ACCOUNT_SERVICE_URL!),
     },
+    isAuthorized: false,
     dispatch: undefined,
 }
 
@@ -39,11 +41,11 @@ const backendReducer = (state: BackendContextType, action: BackendContextAction)
 const authChanged = (state: BackendContextType, jwt: string | null): BackendContextType => {
     if (jwt === null || jwt === "") {
         state!.headers.set("authorization", "")
-        return state
+        return {...state!, isAuthorized: false}
     }
 
     state!.headers.set("authorization", "bearer " + jwt)
-    return state
+    return {...state!, isAuthorized: true}
 }
 
 
@@ -51,10 +53,10 @@ const BackendContext = createContext<BackendContextType>(undefined)
 
 export const BackendContextProvider = ({children}: { children: ReactNode }) => {
     const [reducerState, dispatch] = useReducer(backendReducer, initialState)
-    const {headers, services} = reducerState!
+    const {headers, services, isAuthorized} = reducerState!
 
     return (
-        <BackendContext.Provider value={{headers, services, dispatch}}>
+        <BackendContext.Provider value={{headers, services, isAuthorized, dispatch}}>
             <div>
                 {children}
             </div>

@@ -1,13 +1,13 @@
-import {firebaseAuth} from "../firebase/firebase"
-import {useEffect, useState} from "react"
+import {Button} from "@mui/material"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider, IdTokenResult} from "firebase/auth"
-import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
+import {useEffect, useState} from "react"
 import {BackendContextActions, useBackend} from "../backend/BackendContextProvider"
+import {firebaseAuth} from "../firebase/firebase"
 import {Registration, RegistrationProps} from "./Registration"
+import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
 
 const uiConfig = {
     signInFlow: 'popup',
-    signInSuccessUrl: '/signedIn',
     signInOptions: [
         GoogleAuthProvider.PROVIDER_ID,
         FacebookAuthProvider.PROVIDER_ID,
@@ -43,7 +43,7 @@ export const SignIn = () => {
             initName: firebaseAuth.currentUser!.displayName,
             successCallback: () => {
                 firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signOut)
-            }
+            },
         })
     }
 
@@ -60,6 +60,10 @@ export const SignIn = () => {
         })
         return () => unregisterAuthObserver()
     })
+
+    const onSignOutClick = () => {
+        firebaseAuth.signOut()
+    }
 
     switch (authStatus) {
         case authStatuses.Loading:
@@ -79,7 +83,7 @@ export const SignIn = () => {
             return (
                 <div>
                     <p>Welcome!</p>
-                    <button onClick={() => firebaseAuth.signOut()}>Sign-out</button>
+                    <Button onClick={onSignOutClick}>Sign-out</Button>
                 </div>
             )
 
