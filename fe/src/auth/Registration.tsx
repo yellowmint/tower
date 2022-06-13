@@ -2,6 +2,7 @@ import {Box, Button, FormGroup, FormHelperText, FormLabel, Input} from "@mui/mat
 import {BrowserHeaders} from "browser-headers"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
+import packageJSON from "../../package.json"
 import {useBackend} from "../backend/BackendContextProvider"
 import {CreateMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 
@@ -24,7 +25,10 @@ export const Registration = (props: RegistrationProps) => {
     const onSubmit: SubmitHandler<Inputs> = (data) => {
         setServerStatus("processing...")
 
-        const headers = new BrowserHeaders({"authorization": `bearer ${props.token}`})
+        const headers = new BrowserHeaders({
+            "app-version": `tower-spa:v${packageJSON.version}`,
+            "authorization": `bearer ${props.token}`,
+        })
 
         const request = new CreateMyAccountRequest()
         request.setName(data.name)

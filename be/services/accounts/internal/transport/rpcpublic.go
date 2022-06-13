@@ -40,9 +40,9 @@ func (s rpcPublicServer) GetAccount(ctx context.Context, req *rpcpublicv1.GetAcc
 }
 
 func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetMyAccountRequest) (*rpcpublicv1.GetMyAccountResponse, error) {
-	authUserId := claims.GetAuthUserIdFromCtx(ctx)
+	myAccountId := claims.GetAccountIdFromCtx(ctx)
 
-	res, err := s.accountService.GetByAuthUserId(ctx, authUserId)
+	res, err := s.accountService.Get(ctx, myAccountId)
 	if err != nil {
 		return nil, s.translateError(err)
 	}
@@ -53,8 +53,12 @@ func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetM
 	}, nil
 }
 
+// CreateMyAccount should skip full authorization since accountId will be created here
 func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.CreateMyAccountRequest) (*rpcpublicv1.CreateMyAccountResponse, error) {
 	authUserId := claims.GetAuthUserIdFromCtx(ctx)
+	if authUserId == "" {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
 
 	err := s.accountService.Create(ctx, authUserId, req.GetName())
 	if err != nil {
@@ -67,7 +71,7 @@ func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.C
 func (s rpcPublicServer) DeleteMyAccount(ctx context.Context, req *rpcpublicv1.DeleteMyAccountRequest) (*rpcpublicv1.DeleteMyAccountResponse, error) {
 	accountId := claims.GetAccountIdFromCtx(ctx)
 
-	err := s.accountService.DeleteId(ctx, accountId)
+	err := s.accountService.Delete(ctx, accountId)
 	if err != nil {
 		return nil, s.translateError(err)
 	}

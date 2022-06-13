@@ -36,7 +36,7 @@ func newRpcServer(app *tower.App) *grpc.Server {
 			config.Get().AuthenticationMockEnabled,
 			claims.BasicClaims{},
 			app.FirebaseClients.Auth,
-			[]string{},
+			[]string{"/accounts.rpcpublic.v1.AccountsService/CreateMyAccount"},
 		),
 		validation.UnaryValidationInterceptor(app.Logger),
 	)

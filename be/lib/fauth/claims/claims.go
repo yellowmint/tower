@@ -8,26 +8,19 @@ import (
 )
 
 type BasicClaims struct {
-	AuthUserId  string
-	AccountId   string
-	DisplayName string
+	AuthUserId string
+	AccountId  string
 }
 
 func (BasicClaims) ClaimsFromToken(token *auth.Token) interface{} {
-	name, ok := token.Claims["name"].(string)
-	if !ok {
-		name = ""
-	}
-
 	accountId, ok := token.Claims["accountId"].(string)
 	if !ok {
 		accountId = ""
 	}
 
 	return BasicClaims{
-		AuthUserId:  token.UID,
-		AccountId:   accountId,
-		DisplayName: name,
+		AuthUserId: token.UID,
+		AccountId:  accountId,
 	}
 }
 

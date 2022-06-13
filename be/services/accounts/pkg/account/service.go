@@ -44,20 +44,8 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 	return model.AccountFromRepo(res), nil
 }
 
-func (s *Svc) GetByAuthUserId(ctx context.Context, authUserId string) (model.Account, error) {
-	res, err := s.repo.GetAccountByAuthUserId(ctx, authUserId)
-	if err == repository.ErrAccountNotFound {
-		return model.Account{}, ErrAccountNotFound
-	}
-	if err != nil {
-		return model.Account{}, tower.UnhandledError(err)
-	}
-
-	return model.AccountFromRepo(res), nil
-}
-
 func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
-	err := s.repo.CreateAccount(ctx, authUserId, name)
+	accountId, err := s.repo.CreateAccount(ctx, authUserId, name)
 	if err == repository.ErrAccountAlreadyCreated {
 		return ErrAccountAlreadyCreated
 	}
@@ -65,9 +53,15 @@ func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
 		return tower.UnhandledError(err)
 	}
 
+	accountClaims := map[string]interface{}{"accountId": accountId.String()}
+	err = s.app.FirebaseClients.Auth.SetCustomUserClaims(ctx, authUserId, accountClaims)
+	if err != nil {
+		return tower.UnhandledError(err)
+	}
+
 	return nil
 }
 
-func (s *Svc) DeleteId(ctx context.Context, accountId uuid.UUID) error {
+func (s *Svc) Delete(ctx context.Context, accountId uuid.UUID) error {
 	return s.repo.DeleteAccountById(ctx, accountId)
 }

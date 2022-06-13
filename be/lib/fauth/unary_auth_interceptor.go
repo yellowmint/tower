@@ -18,21 +18,15 @@ func UnaryAuthInterceptor(
 ) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if authMockEnabled {
-			testAuthUserId := getHeader(ctx, "xxx-auth-user-id")
-			if testAuthUserId == "" {
-				return nil, status.Error(codes.Unauthenticated, "unauthenticated")
-			}
-
-			testAccountId := getHeader(ctx, "xxx-account-id")
-			if testAccountId == "" {
-				return nil, status.Error(codes.Unauthenticated, "unauthenticated")
-			}
-
-			ctx = setClaimsInCtx(ctx, &auth.Token{UID: testAuthUserId}, claimsService)
-			return handler(ctx, req)
+			return mockAuth(claimsService, ctx, req, handler)
 		}
 
-		ctx, ok := addDataToContext(ctx, claimsService, authClient)
+		ctx, ok := parseClient(ctx)
+		if !ok {
+			return nil, status.Error(codes.Unauthenticated, "unknown client")
+		}
+
+		ctx, ok = authorizeContext(ctx, claimsService, authClient)
 		if !ok && !shouldSkipAuth(info.FullMethod, skipAuthMethods) {
 			return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 		}
@@ -41,7 +35,7 @@ func UnaryAuthInterceptor(
 	}
 }
 
-func addDataToContext(ctx context.Context, claimsService ClaimsService, authClient *auth.Client) (context.Context, bool) {
+func authorizeContext(ctx context.Context, claimsService ClaimsService, authClient *auth.Client) (context.Context, bool) {
 	jwt, ok := getJwtFromHeader(ctx)
 	if !ok {
 		return ctx, false
@@ -80,6 +74,15 @@ func getHeader(ctx context.Context, name string) string {
 	return headerMetadata[0]
 }
 
+func parseClient(ctx context.Context) (context.Context, bool) {
+	clientAppVersion := getHeader(ctx, "app-version")
+	if clientAppVersion == "" {
+		return ctx, false
+	}
+
+	return context.WithValue(ctx, "app-version", clientAppVersion), true
+}
+
 func shouldSkipAuth(method string, exceptions []string) bool {
 	for _, exception := range exceptions {
 		if method == exception {
@@ -88,4 +91,24 @@ func shouldSkipAuth(method string, exceptions []string) bool {
 	}
 
 	return false
+}
+
+func mockAuth(claimsService ClaimsService, ctx context.Context, req interface{}, handler grpc.UnaryHandler) (interface{}, error) {
+	testAuthUserId := getHeader(ctx, "xxx-auth-user-id")
+	if testAuthUserId == "" {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	testAccountId := getHeader(ctx, "xxx-account-id")
+	if testAccountId == "" {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	fakeToken := auth.Token{
+		UID:    testAuthUserId,
+		Claims: map[string]interface{}{"accountId": testAccountId},
+	}
+
+	ctx = setClaimsInCtx(ctx, &fakeToken, claimsService)
+	return handler(ctx, req)
 }

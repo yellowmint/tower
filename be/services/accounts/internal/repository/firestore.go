@@ -49,25 +49,30 @@ func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUs
 	return res, nil
 }
 
-func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId string, name string) error {
+func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId string, name string) (uuid.UUID, error) {
 	_, err := f.accountByAuthUserId(ctx, authUserId)
 	if err == nil {
-		return ErrAccountAlreadyCreated
+		return uuid.UUID{}, ErrAccountAlreadyCreated
 	}
 	if err != ErrAccountNotFound {
-		return err
+		return uuid.UUID{}, err
 	}
 
+	accountId := uuid.New()
+
 	player := AccountRecord{
-		AccountId:  uuid.New().String(),
+		AccountId:  accountId.String(),
 		AuthUserId: authUserId,
 		Name:       name,
 		CreatedAt:  time.Now().UTC(),
 	}
 
 	_, _, err = f.accountsCollection().Add(ctx, player)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
 
-	return err
+	return accountId, nil
 }
 
 func (f FirestoreAccountRepo) DeleteAccountById(ctx context.Context, accountId uuid.UUID) error {

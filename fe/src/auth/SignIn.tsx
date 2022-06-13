@@ -43,7 +43,6 @@ export const SignIn = () => {
             initName: firebaseAuth.currentUser!.displayName,
             successCallback: () => {
                 firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signOut)
-                console.log("REFRESH")
             }
         })
     }
