@@ -1,6 +1,3 @@
 # generated proto
 contracts/gen/
 contracts/ts-compiler/node_modules/
-
-be/contracts/
-fe/src/contracts/
