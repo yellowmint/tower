@@ -6,7 +6,7 @@ job("BE rpcpublic docker image") {
                 +"refs/heads/prod"
             }
             pathFilter {
-                +"be/**
+                +"be/**"
             }
         }
     }
