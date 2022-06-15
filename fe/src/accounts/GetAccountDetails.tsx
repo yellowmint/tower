@@ -53,7 +53,6 @@ export const GetAccountDetails = () => {
                     render={({field}) => <Input {...field} />}
                 />
                 <FormHelperText error>
-                    {!errors.accountId && "."}
                     {errors.accountId?.type === "required" && "Field is required"}
                     {errors.accountId?.type === "pattern" && "Needs to be a valid UUID"}
                 </FormHelperText>

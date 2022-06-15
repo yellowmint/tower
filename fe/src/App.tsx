@@ -1,8 +1,13 @@
-import {Box, Container, createTheme, CssBaseline, ThemeProvider, Typography} from "@mui/material"
-import React from "react"
-import {GetAccountDetails} from "./accounts/GetAccountDetails"
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material"
+import {BrowserRouter, Route, Routes} from "react-router-dom"
+import {Account} from "./account/Account"
+import {RequireAuth} from "./auth/RequireAuthRoute"
 import {SignIn} from "./auth/SignIn"
+import {SignOut} from "./auth/SignOut"
 import {BackendContextProvider} from "./backend/BackendContextProvider"
+import {Home} from "./home/Home"
+import {Layout} from "./layout/Layout"
+import {NotFound} from "./layout/NotFound"
 
 const darkTheme = createTheme({
     palette: {
@@ -12,27 +17,22 @@ const darkTheme = createTheme({
 
 export const App = () => {
     return (
-        <>
-            <ThemeProvider theme={darkTheme}>
-                <CssBaseline/>
-                <BackendContextProvider>
-                    <Container component="main" maxWidth="md">
-                        <Box
-                            sx={{
-                                marginTop: 15,
-                                marginBottom: 10,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography component="h1" variant="h5">Tower</Typography>
-                        </Box>
-                        <SignIn/>
-                        <GetAccountDetails/>
-                    </Container>
-                </BackendContextProvider>
-            </ThemeProvider>
-        </>
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline/>
+            <BackendContextProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/sign-in" element={<SignIn/>}/>
+                        <Route path="/sign-out" element={<SignOut/>}/>
+
+                        <Route path="/" element={<Layout/>}>
+                            <Route index element={<Home/>}/>
+                            <Route path="account" element={<RequireAuth><Account/></RequireAuth>}/>
+                            <Route path="*" element={<NotFound/>}/>
+                        </Route>
+                    </Routes>
+                </BrowserRouter>
+            </BackendContextProvider>
+        </ThemeProvider>
     )
 }

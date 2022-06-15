@@ -1,10 +1,12 @@
-import {Button} from "@mui/material"
+import {Box, Typography} from "@mui/material"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider, IdTokenResult} from "firebase/auth"
 import {useEffect, useState} from "react"
+import {useLocation, useNavigate} from "react-router-dom"
 import {BackendContextActions, useBackend} from "../backend/BackendContextProvider"
 import {firebaseAuth} from "../firebase/firebase"
 import {Registration, RegistrationProps} from "./Registration"
 import {StyledFirebaseAuth} from "./StyledFirebaseAuth"
+
 
 const uiConfig = {
     signInFlow: 'popup',
@@ -18,76 +20,70 @@ const uiConfig = {
     ],
 }
 
-enum authStatuses {
-    Loading = "LOADING",
-    SignedIn = "SIGNED_IN",
-    SignedOut = "SIGNED_OUT",
-    Registration = "REGISTRATION",
-}
-
 export const SignIn = () => {
     const backend = useBackend()
-    const [authStatus, setAuthStatus] = useState<authStatuses>(authStatuses.Loading)
+    const navigate = useNavigate()
+    const location = useLocation()
+
     const [registrationData, setRegistrationData] = useState<RegistrationProps | null>(null)
+
+    const locationState = location.state as { from: { pathname: string } }
+    const locationFrom = locationState?.from?.pathname || "/"
+
+    if (backend.isAuthorized) navigate(locationFrom, {replace: true})
 
     const signIn = (tokenResult: IdTokenResult) => {
         if (tokenResult.claims["accountId"]) {
-            setAuthStatus(authStatuses.SignedIn)
             backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
+            navigate(locationFrom, {replace: true})
             return
         }
 
-        setAuthStatus(authStatuses.Registration)
         setRegistrationData({
             token: tokenResult.token,
             initName: firebaseAuth.currentUser!.displayName,
             successCallback: () => {
-                firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signOut)
+                firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signInFailed)
             },
         })
     }
 
-    const signOut = () => {
-        setAuthStatus(authStatuses.SignedOut)
+    const signInFailed = () => {
+        setRegistrationData(null)
         backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
     }
 
     useEffect(() => {
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
-            if (!authUser) return signOut()
+            if (!authUser) return signInFailed()
 
-            authUser.getIdTokenResult().then(signIn).catch(signOut)
+            authUser.getIdTokenResult().then(signIn).catch(signInFailed)
         })
         return () => unregisterAuthObserver()
-    })
+    }, [])
 
-    const onSignOutClick = () => {
-        firebaseAuth.signOut()
-    }
+    return (
+        <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: 10,
+            padding: 10,
+        }}>
+            <Typography component="h1" variant="h4" sx={{marginBottom: 3}}>
+                Sign in
+            </Typography>
 
-    switch (authStatus) {
-        case authStatuses.Loading:
-            return (
-                <div>Loading...</div>
-            )
+            {locationFrom !== "/" && <p>You must sign in to view the page at {locationFrom}</p>}
+            <p>You must sign in to view the page at {locationFrom}</p>
 
-        case authStatuses.SignedOut:
-            return (
-                <div>
-                    <p>Please sign-in:</p>
+            <Box sx={{marginTop: 2, width: "100%", maxWidth: 800}}>
+                {registrationData === null ?
                     <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebaseAuth}/>
-                </div>
-            )
-
-        case authStatuses.SignedIn:
-            return (
-                <div>
-                    <p>Welcome!</p>
-                    <Button onClick={onSignOutClick}>Sign-out</Button>
-                </div>
-            )
-
-        case authStatuses.Registration:
-            return <Registration {...registrationData!} />
-    }
+                    :
+                    <Registration {...registrationData} />
+                }
+            </Box>
+        </Box>
+    )
 }

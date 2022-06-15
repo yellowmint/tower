@@ -1,10 +1,11 @@
-import {Box, Button, FormGroup, FormHelperText, FormLabel, Input} from "@mui/material"
+import {Box, Button, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui/material"
 import {BrowserHeaders} from "browser-headers"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import packageJSON from "../../package.json"
 import {useBackend} from "../backend/BackendContextProvider"
 import {CreateMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
+import {SignOutButton} from "./SignOutButton"
 
 
 export type RegistrationProps = {
@@ -50,7 +51,10 @@ export const Registration = (props: RegistrationProps) => {
     }
 
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{mt: 1}}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            <Typography component="h2" variant="h6" sx={{marginBottom: 5}}>
+                Please finish registration
+            </Typography>
             <FormGroup>
                 <FormLabel>
                     Name
@@ -68,7 +72,6 @@ export const Registration = (props: RegistrationProps) => {
                     render={({field}) => <Input {...field} />}
                 />
                 <FormHelperText error>
-                    {!errors.name && "."}
                     {errors.name?.type === "required" && "Field is required"}
                     {errors.name?.type === "minLength" && "Minimum length is 6"}
                     {errors.name?.type === "maxLength" && "Max length is 16"}
@@ -77,6 +80,10 @@ export const Registration = (props: RegistrationProps) => {
             </FormGroup>
             <Button type="submit" fullWidth variant="contained" sx={{mt: 3, mb: 2}}>Submit</Button>
             <FormHelperText>{serverStatus}</FormHelperText>
+
+            <Box sx={{marginTop: 10}}>
+                <SignOutButton/>
+            </Box>
         </Box>
     )
 }
