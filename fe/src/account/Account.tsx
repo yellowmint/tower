@@ -1,10 +1,11 @@
-import {GetAccountDetails} from "../accounts/GetAccountDetails"
+import {Typography} from "@mui/material"
 
 export const Account = () => {
     return (
         <>
-            <p>Account</p>
-            <GetAccountDetails/>
+            <Typography component="h2" variant="h4" sx={{marginBottom: 3}}>
+                Account
+            </Typography>
         </>
     )
 }

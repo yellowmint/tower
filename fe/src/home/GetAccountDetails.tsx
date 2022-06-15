@@ -1,4 +1,6 @@
-import {Box, Button, FormGroup, FormHelperText, FormLabel, Input} from "@mui/material"
+import {Send} from "@mui/icons-material"
+import {LoadingButton} from "@mui/lab"
+import {Box, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui/material"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import {useBackend} from "../backend/BackendContextProvider"
@@ -9,7 +11,7 @@ type Inputs = {
 }
 
 export const GetAccountDetails = () => {
-    const be = useBackend()
+    const backend = useBackend()
     const [serverStatus, setServerStatus] = useState<string | null>(null)
     const {control, handleSubmit, formState: {errors}} = useForm<Inputs>()
 
@@ -19,7 +21,7 @@ export const GetAccountDetails = () => {
         const request = new GetAccountRequest()
         request.setAccountId(data.accountId.toLowerCase())
 
-        be.services.accounts.getAccount(request, be.headers, (err, response) => {
+        backend.services.accounts.getAccount(request, backend.headers, (err, response) => {
             if (err?.message === "account not found") {
                 setServerStatus("account not found")
                 return
@@ -34,10 +36,14 @@ export const GetAccountDetails = () => {
         })
     }
 
-    if (!be.isAuthorized) return <></>
+    if (!backend.isAuthorized) return <></>
 
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{mt: 1, marginTop: 10}}>
+            <Typography component="h3" variant="h6" sx={{marginBottom: 3}}>
+                Find account
+            </Typography>
+
             <FormGroup>
                 <FormLabel>
                     Account Id
@@ -57,7 +63,17 @@ export const GetAccountDetails = () => {
                     {errors.accountId?.type === "pattern" && "Needs to be a valid UUID"}
                 </FormHelperText>
             </FormGroup>
-            <Button type="submit" fullWidth sx={{mt: 3, mb: 2}}>Get account info</Button>
+
+            <LoadingButton
+                type="submit"
+                fullWidth
+                loading={serverStatus === "processing..."}
+                loadingPosition="end"
+                endIcon={<Send/>}
+                sx={{mt: 3, mb: 2}}
+            >
+                Get account info
+            </LoadingButton>
             <FormHelperText>{serverStatus}</FormHelperText>
         </Box>
     )

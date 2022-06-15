@@ -14,7 +14,7 @@ export const Layout = () => {
                     alignItems: "center",
                 }}
             >
-                <Typography component="h1" variant="h5">Tower</Typography>
+                <Typography component="h1" variant="h2">Tower</Typography>
                 <Navigation/>
             </Box>
             <Outlet/>
