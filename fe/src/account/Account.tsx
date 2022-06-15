@@ -26,7 +26,7 @@ export const Account = () => {
             setServerStatus(null)
             setAccountData({name: response!.getName(), accountId: response!.getAccountId()})
         })
-    }, [])
+    }, [backend])
 
     return (
         <>

@@ -9,5 +9,5 @@ import (
 type Service interface {
 	Get(ctx context.Context, accountId uuid.UUID) (model.Account, error)
 	Create(ctx context.Context, authUserId, name string) error
-	Delete(ctx context.Context, accountId uuid.UUID) error
+	Delete(ctx context.Context, accountId uuid.UUID, authUserId string) error
 }

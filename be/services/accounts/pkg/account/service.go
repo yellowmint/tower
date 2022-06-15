@@ -62,6 +62,16 @@ func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
 	return nil
 }
 
-func (s *Svc) Delete(ctx context.Context, accountId uuid.UUID) error {
-	return s.repo.DeleteAccountById(ctx, accountId)
+func (s *Svc) Delete(ctx context.Context, accountId uuid.UUID, authUserId string) error {
+	err := s.repo.DeleteAccountById(ctx, accountId)
+	if err != nil {
+		return err
+	}
+
+	err = s.app.FirebaseClients.Auth.DeleteUser(ctx, authUserId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -70,8 +70,9 @@ func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.C
 
 func (s rpcPublicServer) DeleteMyAccount(ctx context.Context, req *rpcpublicv1.DeleteMyAccountRequest) (*rpcpublicv1.DeleteMyAccountResponse, error) {
 	accountId := claims.GetAccountIdFromCtx(ctx)
+	authUserId := claims.GetAuthUserIdFromCtx(ctx)
 
-	err := s.accountService.Delete(ctx, accountId)
+	err := s.accountService.Delete(ctx, accountId, authUserId)
 	if err != nil {
 		return nil, s.translateError(err)
 	}
