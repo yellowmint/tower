@@ -13,10 +13,7 @@ export const SignOut = () => {
         firebaseAuth.signOut()
             .then(() => {
                 setStatus("success, redirecting...")
-
-                timer = setTimeout(() => {
-                    navigate("/")
-                }, 1500)
+                timer = setTimeout(() => navigate("/"), 1000)
             })
             .catch(() => setStatus("failed to sing out"))
 

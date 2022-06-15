@@ -1,6 +1,6 @@
 import {Box, Container, Typography} from "@mui/material"
 import {Outlet} from "react-router-dom"
-import {Authorization} from "../auth/Authorization"
+import {Navigation} from "./Navigation"
 
 export const Layout = () => {
     return (
@@ -9,15 +9,13 @@ export const Layout = () => {
                 sx={{
                     marginTop: 15,
                     marginBottom: 10,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
                 }}
             >
                 <Typography component="h1" variant="h5">Tower</Typography>
-                <nav>
-                    <Authorization/>
-                </nav>
+                <Navigation/>
             </Box>
             <Outlet/>
         </Container>

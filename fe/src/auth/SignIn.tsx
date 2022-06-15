@@ -75,7 +75,6 @@ export const SignIn = () => {
             </Typography>
 
             {locationFrom !== "/" && <p>You must sign in to view the page at {locationFrom}</p>}
-            <p>You must sign in to view the page at {locationFrom}</p>
 
             <Box sx={{marginTop: 2, width: "100%", maxWidth: 800}}>
                 {registrationData === null ?
