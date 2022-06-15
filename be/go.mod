@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.6.1
 	firebase.google.com/go/v4 v4.8.0
 	git.jetbrains.space/artdecoction/gt/drun v0.1.0
+	git.jetbrains.space/artdecoction/gt/dtrace v0.1.0
 	github.com/blendle/zapdriver v1.3.1
 	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.12.0
@@ -20,10 +21,15 @@ require (
 	cloud.google.com/go/compute v1.6.1 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/storage v1.22.1 // indirect
+	cloud.google.com/go/trace v1.2.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.8.1 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.32.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
@@ -45,8 +51,11 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
+	go.opentelemetry.io/otel v1.7.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.7.0 // indirect
+	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect

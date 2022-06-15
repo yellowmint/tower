@@ -1,1 +1,4 @@
 loggerFormat: productionJSON
+tracerEnabled: true
+firebaseEmulator:
+  disable: true

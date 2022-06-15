@@ -2,6 +2,7 @@ package main
 
 import (
 	"git.jetbrains.space/artdecoction/gt/drun/drun"
+	"git.jetbrains.space/artdecoction/gt/dtrace/pkg/dtrace"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/config"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fauth"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fauth/claims"
@@ -32,6 +33,7 @@ func main() {
 func newRpcServer(app *tower.App) *grpc.Server {
 	unaryInterceptors := grpc.ChainUnaryInterceptor(
 		logs.UnaryInfoInterceptor(app.Logger),
+		dtrace.UnaryTraceInterceptor(app.Tracer),
 		fauth.UnaryAuthInterceptor(
 			config.Get().AuthenticationMockEnabled,
 			claims.BasicClaims{},

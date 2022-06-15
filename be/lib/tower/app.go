@@ -1,6 +1,7 @@
 package tower
 
 import (
+	"git.jetbrains.space/artdecoction/gt/dtrace/pkg/dtrace"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/config"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fbase"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/logs"
@@ -10,6 +11,7 @@ import (
 type App struct {
 	Logger          *zap.Logger
 	FirebaseClients *fbase.Clients
+	Tracer          *dtrace.Tracer
 }
 
 func NewTowerApp() *App {
@@ -19,6 +21,11 @@ func NewTowerApp() *App {
 	}
 
 	printStartInfo(logger)
+
+	tracer, err := dtrace.NewTracer(config.Get().TracerEnabled, config.Get().GcpProjectId)
+	if err != nil {
+		panic(err)
+	}
 
 	err = fbase.ConfigureEmulator(config.Get().FirebaseEmulator)
 	if err != nil {
@@ -33,6 +40,7 @@ func NewTowerApp() *App {
 	return &App{
 		logger,
 		firebaseClients,
+		tracer,
 	}
 }
 
@@ -41,8 +49,12 @@ func CleanupApp(app *App) {
 		_ = logs.SyncLogger(app.Logger)
 	}
 
+	if app.Tracer != nil {
+		_ = app.Tracer.Cleanup()
+	}
+
 	if app.FirebaseClients != nil {
-		_ = fbase.Cleanup(app.FirebaseClients)
+		_ = app.FirebaseClients.Cleanup()
 	}
 }
 

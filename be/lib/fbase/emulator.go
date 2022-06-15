@@ -3,13 +3,13 @@ package fbase
 import "os"
 
 type EmulatorConfig struct {
-	Enable        bool
+	Disable       bool
 	AuthHost      string
 	FirestoreHost string
 }
 
 func ConfigureEmulator(emulatorConfig EmulatorConfig) error {
-	if !emulatorConfig.Enable {
+	if emulatorConfig.Disable {
 		return nil
 	}
 

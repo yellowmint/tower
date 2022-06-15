@@ -40,6 +40,6 @@ func NewClients(gcpProjectId string) (*Clients, error) {
 	}, nil
 }
 
-func Cleanup(clients *Clients) error {
+func (clients *Clients) Cleanup() error {
 	return clients.Firestore.Close()
 }

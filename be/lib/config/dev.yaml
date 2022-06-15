@@ -1,6 +1,6 @@
 port: 4100
 loggerFormat: development
 firebaseEmulator:
-  enable: true
+  disable: false
   authHost: 127.0.0.1:9099
   firestoreHost: 127.0.0.1:8080

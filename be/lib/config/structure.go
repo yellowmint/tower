@@ -24,4 +24,5 @@ type Config struct {
 	GcpProjectId              string
 	FirebaseEmulator          fbase.EmulatorConfig
 	AuthenticationMockEnabled bool
+	TracerEnabled             bool
 }
