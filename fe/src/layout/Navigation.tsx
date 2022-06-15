@@ -1,4 +1,4 @@
-import {HomeOutlined, Person} from "@mui/icons-material"
+import {HomeOutlined, PersonOutline} from "@mui/icons-material"
 import {Box, Button} from "@mui/material"
 import {NavLink} from "react-router-dom"
 import {Authorization} from "../auth/Authorization"
@@ -25,7 +25,7 @@ export const Navigation = () => {
                 </Button>
             )}/>
             <NavLink to="/account" children={({isActive}) => (
-                <Button variant={isActive ? "contained" : "outlined"} endIcon={<Person/>}>
+                <Button variant={isActive ? "contained" : "outlined"} endIcon={<PersonOutline/>}>
                     Account
                 </Button>
             )}/>

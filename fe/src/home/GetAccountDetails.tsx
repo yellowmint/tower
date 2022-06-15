@@ -39,7 +39,7 @@ export const GetAccountDetails = () => {
     if (!backend.isAuthorized) return <></>
 
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{mt: 1, marginTop: 10}}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Typography component="h3" variant="h6" sx={{marginBottom: 3}}>
                 Find account
             </Typography>
