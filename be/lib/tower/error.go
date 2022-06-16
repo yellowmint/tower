@@ -15,3 +15,10 @@ func UnhandledError(err error) Err {
 		EndUserMessage: "unhandled error",
 	}
 }
+
+func ValidationError(err error) Err {
+	return Err{
+		ErrorValue:     err,
+		EndUserMessage: "validation error",
+	}
+}

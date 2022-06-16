@@ -5,6 +5,7 @@ import (
 	"git.jetbrains.space/artdecoction/wt/tower/lib/config"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/fbase"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/logs"
+	"git.jetbrains.space/artdecoction/wt/tower/lib/validate"
 	"go.uber.org/zap"
 )
 
@@ -36,6 +37,8 @@ func NewTowerApp() *App {
 	if err != nil {
 		panic(err)
 	}
+
+	validate.Init()
 
 	return &App{
 		logger,

@@ -13,7 +13,7 @@ var ErrAccountAlreadyCreated = errors.New("account already created")
 type AccountRepo interface {
 	GetAccountById(ctx context.Context, accountId uuid.UUID) (AccountRecord, error)
 	GetAccountByAuthUserId(ctx context.Context, authUserId string) (AccountRecord, error)
-	CreateAccount(ctx context.Context, authUserId string, name string) (uuid.UUID, error)
+	CreateAccount(ctx context.Context, authUserId string, account AccountRecord) error
 	DeleteAccountById(ctx context.Context, accountId uuid.UUID) error
 }
 

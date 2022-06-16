@@ -45,7 +45,17 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 }
 
 func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
-	accountId, err := s.repo.CreateAccount(ctx, authUserId, name)
+	account := model.Account{
+		AccountId: uuid.New(),
+		Name:      name,
+	}
+
+	err := account.Validate()
+	if err != nil {
+		return tower.ValidationError(err)
+	}
+
+	err = s.repo.CreateAccount(ctx, authUserId, account.ToRepoRecord())
 	if err == repository.ErrAccountAlreadyCreated {
 		return ErrAccountAlreadyCreated
 	}
@@ -53,7 +63,7 @@ func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
 		return tower.UnhandledError(err)
 	}
 
-	accountClaims := map[string]interface{}{"accountId": accountId.String()}
+	accountClaims := map[string]interface{}{"accountId": account.AccountId.String()}
 	err = s.app.FirebaseClients.Auth.SetCustomUserClaims(ctx, authUserId, accountClaims)
 	if err != nil {
 		return tower.UnhandledError(err)
