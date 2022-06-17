@@ -24,7 +24,7 @@ export const Account = () => {
 
             setAccountData({name: response!.getName(), accountId: response!.getAccountId()})
         })
-    }, [backend])
+    }, [backend, enqueueSnackbar])
 
     return (
         <>

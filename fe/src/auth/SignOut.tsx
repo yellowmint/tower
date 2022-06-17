@@ -20,7 +20,7 @@ export const SignOut = () => {
         return () => {
             if (timer) clearTimeout(timer)
         }
-    }, [])
+    }, [navigate])
 
     return (
         <Box sx={{
