@@ -7,7 +7,6 @@ import (
 	rpcpublicv1 "git.jetbrains.space/artdecoction/wt/tower/contracts/accounts/rpcpublic/v1"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
-	"strings"
 	"time"
 )
 
@@ -34,7 +33,7 @@ func (s *Support) NewAuthorization() Authorization {
 	ctx := s.AuthorizeInContext(context.Background(), authorization)
 
 	request := &rpcpublicv1.CreateMyAccountRequest{
-		Name: authUser.Email[:strings.IndexByte(authUser.Email, '@')],
+		Name: "bubble" + authUser.Email[16:26], // bubble.1655486512806060832@decoct.dev -> bubble2806060832
 	}
 
 	cc := s.NewGrpcClientConn("accounts")
