@@ -1,9 +1,12 @@
+import {grpc} from "@improbable-eng/grpc-web"
 import {Send} from "@mui/icons-material"
 import {LoadingButton} from "@mui/lab"
 import {Box, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui/material"
+import {useSnackbar} from "notistack"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import {useBackend} from "../backend/BackendContextProvider"
+import {checkError, handleCommonErrors} from "../backend/errors"
 import {GetAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 
 type Inputs = {
@@ -12,27 +15,29 @@ type Inputs = {
 
 export const GetAccountDetails = () => {
     const backend = useBackend()
-    const [serverStatus, setServerStatus] = useState<string | null>(null)
+    const {enqueueSnackbar} = useSnackbar()
+
+    const [serverFeedback, setServerFeedback] = useState<string | null>(null)
     const {control, handleSubmit, formState: {errors}} = useForm<Inputs>()
 
     const onSubmit: SubmitHandler<Inputs> = (data) => {
-        setServerStatus("processing...")
+        setServerFeedback("processing...")
 
         const request = new GetAccountRequest()
         request.setAccountId(data.accountId.toLowerCase())
 
         backend.services.accounts.getAccount(request, backend.headers, (err, response) => {
-            if (err?.message === "account not found") {
-                setServerStatus("account not found")
+            if (checkError(err, grpc.Code.NotFound, "account not found")) {
+                setServerFeedback("account not found")
                 return
             }
             if (err) {
-                console.log(err)
-                setServerStatus("server error")
+                setServerFeedback("error")
+                handleCommonErrors(err, enqueueSnackbar, "find account")
                 return
             }
 
-            setServerStatus(`Account name: ${response?.getName()}`)
+            setServerFeedback(`Account name: ${response?.getName()}`)
         })
     }
 
@@ -67,14 +72,14 @@ export const GetAccountDetails = () => {
             <LoadingButton
                 type="submit"
                 fullWidth
-                loading={serverStatus === "processing..."}
+                loading={serverFeedback === "processing..."}
                 loadingPosition="end"
                 endIcon={<Send/>}
                 sx={{mt: 3, mb: 2}}
             >
                 Get account info
             </LoadingButton>
-            <FormHelperText>{serverStatus}</FormHelperText>
+            <FormHelperText>{serverFeedback}</FormHelperText>
         </Box>
     )
 }

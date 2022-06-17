@@ -14,6 +14,7 @@ import {useSnackbar} from "notistack"
 import {useState} from "react"
 import {useNavigate} from "react-router-dom"
 import {useBackend} from "../backend/BackendContextProvider"
+import {handleCommonErrors} from "../backend/errors"
 import {DeleteMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 
 type DeleteAccountProps = {
@@ -49,11 +50,7 @@ export const DeleteAccount = (props: DeleteAccountProps) => {
         const request = new DeleteMyAccountRequest()
 
         backend.services.accounts.deleteMyAccount(request, backend.headers, (err, _) => {
-            if (err) {
-                console.log(err)
-                enqueueSnackbar("failed to delete account - server error", {variant: "error"})
-                return
-            }
+            if (err) return handleCommonErrors(err, enqueueSnackbar, "delete account")
 
             enqueueSnackbar("account deleted", {variant: "success"})
             navigate("/sign-out")

@@ -1,5 +1,9 @@
 # wt/tower
 
+## Preview
+Navigate to https://ad-tower.web.app/
+
+
 ## Setup
 
 ### Tools version manager

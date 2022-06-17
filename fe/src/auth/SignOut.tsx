@@ -15,12 +15,12 @@ export const SignOut = () => {
                 setStatus("success, redirecting...")
                 timer = setTimeout(() => navigate("/"), 1000)
             })
-            .catch(() => setStatus("failed to sing out"))
+            .catch(() => setStatus("failed to sign out"))
 
         return () => {
             if (timer) clearTimeout(timer)
         }
-    })
+    }, [])
 
     return (
         <Box sx={{

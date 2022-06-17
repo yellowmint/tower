@@ -1,9 +1,14 @@
-import {Box, Button, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui/material"
+import {grpc} from "@improbable-eng/grpc-web"
+import {Send} from "@mui/icons-material"
+import {LoadingButton} from "@mui/lab"
+import {Box, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui/material"
 import {BrowserHeaders} from "browser-headers"
+import {useSnackbar} from "notistack"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
 import packageJSON from "../../package.json"
 import {useBackend} from "../backend/BackendContextProvider"
+import {checkError, handleCommonErrors} from "../backend/errors"
 import {CreateMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 import {SignOutButton} from "./SignOutButton"
 
@@ -20,11 +25,13 @@ type Inputs = {
 
 export const Registration = (props: RegistrationProps) => {
     const backend = useBackend()
-    const [serverStatus, setServerStatus] = useState<string | null>(null)
+    const {enqueueSnackbar} = useSnackbar()
+
+    const [serverFeedback, setServerFeedback] = useState<string | null>(null)
     const {control, handleSubmit, formState: {errors}} = useForm<Inputs>()
 
     const onSubmit: SubmitHandler<Inputs> = (data) => {
-        setServerStatus("processing...")
+        setServerFeedback("processing...")
 
         const headers = new BrowserHeaders({
             "app-version": `tower-spa:v${packageJSON.version}`,
@@ -34,18 +41,19 @@ export const Registration = (props: RegistrationProps) => {
         const request = new CreateMyAccountRequest()
         request.setName(data.name)
 
-        backend.services.accounts.createMyAccount(request, headers, (err, result) => {
-            if (err?.message === "account already created") {
-                setServerStatus("account already created")
+        backend.services.accounts.createMyAccount(request, headers, (err, _) => {
+            if (checkError(err, grpc.Code.AlreadyExists, "account already created")) {
+                setServerFeedback("account already created")
                 return
             }
             if (err) {
-                console.log(err)
-                setServerStatus("server error")
+                setServerFeedback("error")
+                handleCommonErrors(err, enqueueSnackbar, "register")
                 return
             }
 
-            setServerStatus(null)
+            setServerFeedback(null)
+            enqueueSnackbar("account created", {variant: "success"})
             props.successCallback()
         })
     }
@@ -78,8 +86,18 @@ export const Registration = (props: RegistrationProps) => {
                     {errors.name?.type === "pattern" && "Can contain only letters and digits"}
                 </FormHelperText>
             </FormGroup>
-            <Button type="submit" fullWidth variant="contained" sx={{mt: 3, mb: 2}}>Submit</Button>
-            <FormHelperText>{serverStatus}</FormHelperText>
+            <LoadingButton
+                type="submit"
+                fullWidth
+                variant="contained"
+                loading={serverFeedback === "processing..."}
+                loadingPosition="end"
+                endIcon={<Send/>}
+                sx={{mt: 3, mb: 2}}
+            >
+                Register
+            </LoadingButton>
+            <FormHelperText>{serverFeedback}</FormHelperText>
 
             <Box sx={{marginTop: 10}}>
                 <SignOutButton/>
