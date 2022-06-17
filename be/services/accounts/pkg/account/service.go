@@ -6,6 +6,7 @@ import (
 	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/internal/model"
 	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/internal/repository"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 var ErrAccountNotFound = tower.Err{
@@ -60,13 +61,13 @@ func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
 		return ErrAccountAlreadyCreated
 	}
 	if err != nil {
-		return tower.UnhandledError(err)
+		return tower.UnhandledError(errors.Wrap(err, "repo create account"))
 	}
 
 	accountClaims := map[string]interface{}{"accountId": account.AccountId.String()}
 	err = s.app.FirebaseClients.Auth.SetCustomUserClaims(ctx, authUserId, accountClaims)
 	if err != nil {
-		return tower.UnhandledError(err)
+		return tower.UnhandledError(errors.Wrap(err, "update custom claims"))
 	}
 
 	return nil

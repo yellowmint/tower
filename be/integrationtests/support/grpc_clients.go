@@ -5,16 +5,14 @@ import (
 	"crypto/x509"
 	"fmt"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
-	"testing"
 )
 
 var gRpcClientConnections []*grpc.ClientConn
 
-func (s *Support) NewGrpcClientConn(t *testing.T, service string) *grpc.ClientConn {
+func (s *Support) NewGrpcClientConn(service string) *grpc.ClientConn {
 	var opts []grpc.DialOption
 
 	host := viper.GetString(service + ".url")
@@ -22,7 +20,9 @@ func (s *Support) NewGrpcClientConn(t *testing.T, service string) *grpc.ClientCo
 
 	if viper.GetBool(service + "tls") {
 		systemRoots, err := x509.SystemCertPool()
-		assert.NoError(t, err)
+		if err != nil {
+			panic(err)
+		}
 
 		cred := credentials.NewTLS(&tls.Config{RootCAs: systemRoots})
 		opts = append(opts, grpc.WithTransportCredentials(cred))
@@ -31,7 +31,9 @@ func (s *Support) NewGrpcClientConn(t *testing.T, service string) *grpc.ClientCo
 	}
 
 	cc, err := grpc.Dial(host, opts...)
-	assert.NoError(t, err)
+	if err != nil {
+		panic(err)
+	}
 
 	gRpcClientConnections = append(gRpcClientConnections, cc)
 

@@ -3,5 +3,6 @@ accounts:
   tls: false
 gcpProjectId: ad-tower
 firebaseEmulator:
+  disable: false
   authHost: 127.0.0.1:9099
   firestoreHost: 127.0.0.1:8080

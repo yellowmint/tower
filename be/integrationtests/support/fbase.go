@@ -7,7 +7,7 @@ import (
 
 func createFirebaseClients() *fbase.Clients {
 	cfg := fbase.EmulatorConfig{
-		Enable:        true,
+		Disable:       false,
 		AuthHost:      viper.GetString("firebaseEmulator.authHost"),
 		FirestoreHost: viper.GetString("firebaseEmulator.firestoreHost"),
 	}

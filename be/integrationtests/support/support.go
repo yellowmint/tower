@@ -18,7 +18,7 @@ func Init() *Support {
 
 func (s *Support) Cleanup() {
 	if s.FirebaseClients != nil {
-		_ = fbase.Cleanup(s.FirebaseClients)
+		_ = s.FirebaseClients.Cleanup()
 	}
 
 	closeGrpcClientConnections()
