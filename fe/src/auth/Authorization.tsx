@@ -9,24 +9,24 @@ import {SignOutButton} from "./SignOutButton"
 export const Authorization = () => {
     const backend = useBackend()
 
-    const signIn = (tokenResult: IdTokenResult) => {
-        if (!tokenResult.claims["accountId"]) return signOut()
-
-        backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
-    }
-
-    const signOut = () => {
-        backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
-    }
-
     useEffect(() => {
+        const signIn = (tokenResult: IdTokenResult) => {
+            if (!tokenResult.claims["accountId"]) return signOut()
+
+            backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
+        }
+
+        const signOut = () => {
+            backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
+        }
+
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
             if (!authUser) return signOut()
 
             authUser.getIdTokenResult().then(signIn).catch(signOut)
         })
         return () => unregisterAuthObserver()
-    }, [])
+    }, [backend.dispatch])
 
     return (
         <>

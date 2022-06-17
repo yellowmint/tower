@@ -37,8 +37,13 @@ export const Account = () => {
                 <CircularProgress/>
                 :
                 <>
-                    {accountData && <AccountDetails {...{accountData}} />}
-                    <DeleteAccount/>
+                    {accountData &&
+                        <>
+                            <AccountDetails {...{accountData}} />
+                            <DeleteAccount accountName={accountData.name}/>
+                        </>
+                    }
+
                     <p>{serverStatus}</p>
                 </>
             }

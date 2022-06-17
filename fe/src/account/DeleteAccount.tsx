@@ -8,27 +8,42 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Typography,
+    TextField,
 } from "@mui/material"
+import {useSnackbar} from "notistack"
 import {useState} from "react"
 import {useNavigate} from "react-router-dom"
 import {useBackend} from "../backend/BackendContextProvider"
 import {DeleteMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
 
-export const DeleteAccount = () => {
+type DeleteAccountProps = {
+    accountName: string
+}
+
+export const DeleteAccount = (props: DeleteAccountProps) => {
     const backend = useBackend()
     const navigate = useNavigate()
-    const [openDialog, setOpenDialog] = useState<boolean>(false)
-    const [serverStatus, setServerStatus] = useState<string | null>(null)
+    const {enqueueSnackbar} = useSnackbar()
+
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+    const [confirmationValue, setConfirmationValue] = useState<string>("")
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
-    const handleClickOpen = () => {
-        setOpenDialog(true)
+    const openDialog = () => {
+        setIsDialogOpen(true)
     }
 
     const handleClose = (confirmed: boolean) => {
-        if (!confirmed) return setOpenDialog(false)
+        if (!confirmed) {
+            setIsDialogOpen(false)
+            setConfirmationValue("")
+            return
+        }
 
+        deleteAccount()
+    }
+
+    const deleteAccount = () => {
         setIsProcessing(true)
 
         const request = new DeleteMyAccountRequest()
@@ -36,12 +51,11 @@ export const DeleteAccount = () => {
         backend.services.accounts.deleteMyAccount(request, backend.headers, (err, _) => {
             if (err) {
                 console.log(err)
-                setServerStatus("server error")
+                enqueueSnackbar("failed to delete account - server error", {variant: "error"})
                 return
             }
 
-            setIsProcessing(false)
-            setServerStatus(null)
+            enqueueSnackbar("account deleted", {variant: "success"})
             navigate("/sign-out")
         })
     }
@@ -51,26 +65,29 @@ export const DeleteAccount = () => {
             <Button
                 variant="outlined"
                 color="error"
-                onClick={handleClickOpen}
+                onClick={openDialog}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
                 Delete account
             </Button>
-            <Dialog open={openDialog} onClose={() => handleClose(false)}>
+            <Dialog open={isDialogOpen} onClose={() => handleClose(false)}>
                 <DialogTitle id="alert-dialog-title">
                     Are you sure you want to delete your account?
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        After doing this, you will lose access to your account and your account will not be visible in
-                        the system.
-                        However, the complete deletion of the account and anonymization of your data will take place
-                        after 30 days.
-                        {serverStatus && <Typography component="span" color="orange">
-                            <br/><br/>{serverStatus}
-                        </Typography>}
+                        You will lose access to your account and your account will not be visible in
+                        the system. It is not possible to undo this operation.<br/><br/>
+                        Enter your account name to confirm delete action:
                     </DialogContentText>
+                    <TextField
+                        label="Your account name"
+                        value={confirmationValue}
+                        onChange={e => setConfirmationValue(e.target.value)}
+                        fullWidth
+                        sx={{mt: 2}}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -84,6 +101,7 @@ export const DeleteAccount = () => {
                         onClick={() => handleClose(true)}
                         color="error"
                         loading={isProcessing}
+                        disabled={confirmationValue !== props.accountName}
                         loadingPosition="end"
                         endIcon={<DeleteForever/>}
                     >

@@ -1,7 +1,7 @@
-import {Box, Typography} from "@mui/material"
+import {Box, Link, Typography} from "@mui/material"
 import {EmailAuthProvider, FacebookAuthProvider, GoogleAuthProvider, IdTokenResult} from "firebase/auth"
 import {useEffect, useState} from "react"
-import {useLocation, useNavigate} from "react-router-dom"
+import {Link as RouterLink, useLocation, useNavigate} from "react-router-dom"
 import {BackendContextActions, useBackend} from "../backend/BackendContextProvider"
 import {firebaseAuth} from "../firebase/firebase"
 import {Registration, RegistrationProps} from "./Registration"
@@ -32,35 +32,35 @@ export const SignIn = () => {
 
     if (backend.isAuthorized) navigate(locationFrom, {replace: true})
 
-    const signIn = (tokenResult: IdTokenResult) => {
-        if (tokenResult.claims["accountId"]) {
-            backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
-            navigate(locationFrom, {replace: true})
-            return
+    useEffect(() => {
+        const signIn = (tokenResult: IdTokenResult) => {
+            if (tokenResult.claims["accountId"]) {
+                backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: tokenResult.token}})
+                navigate(locationFrom, {replace: true})
+                return
+            }
+
+            setRegistrationData({
+                token: tokenResult.token,
+                initName: firebaseAuth.currentUser!.displayName,
+                successCallback: () => {
+                    firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signInFailed)
+                },
+            })
         }
 
-        setRegistrationData({
-            token: tokenResult.token,
-            initName: firebaseAuth.currentUser!.displayName,
-            successCallback: () => {
-                firebaseAuth.currentUser!.getIdTokenResult(true).then(signIn).catch(signInFailed)
-            },
-        })
-    }
+        const signInFailed = () => {
+            setRegistrationData(null)
+            backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
+        }
 
-    const signInFailed = () => {
-        setRegistrationData(null)
-        backend.dispatch!({type: BackendContextActions.AuthChanged, payload: {jwt: null}})
-    }
-
-    useEffect(() => {
         const unregisterAuthObserver = firebaseAuth.onAuthStateChanged(authUser => {
             if (!authUser) return signInFailed()
 
             authUser.getIdTokenResult().then(signIn).catch(signInFailed)
         })
         return () => unregisterAuthObserver()
-    }, [])
+    }, [backend.dispatch, navigate, locationFrom])
 
     return (
         <Box sx={{
@@ -82,6 +82,9 @@ export const SignIn = () => {
                     :
                     <Registration {...registrationData} />
                 }
+            </Box>
+            <Box sx={{marginTop: 10}}>
+                <Link component={RouterLink} to="/">Back to home page</Link>
             </Box>
         </Box>
     )
