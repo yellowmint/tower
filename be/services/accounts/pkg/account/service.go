@@ -20,13 +20,13 @@ var ErrAccountAlreadyCreated = tower.Err{
 }
 
 type Svc struct {
-	app  *tower.App
-	repo repository.AccountRepo
+	appTool tower.AppTool
+	repo    repository.AccountRepo
 }
 
-func NewService(app *tower.App, repo repository.AccountRepo) *Svc {
+func NewService(appTool tower.AppTool, repo repository.AccountRepo) *Svc {
 	s := Svc{
-		app,
+		appTool,
 		repo,
 	}
 	return &s
@@ -65,7 +65,7 @@ func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
 	}
 
 	accountClaims := map[string]interface{}{"accountId": account.AccountId.String()}
-	err = s.app.FirebaseClients.Auth.SetCustomUserClaims(ctx, authUserId, accountClaims)
+	err = s.appTool.GetAuth().SetCustomUserClaims(ctx, authUserId, accountClaims)
 	if err != nil {
 		return tower.UnhandledError(errors.Wrap(err, "update custom claims"))
 	}
@@ -79,7 +79,7 @@ func (s *Svc) Delete(ctx context.Context, accountId uuid.UUID, authUserId string
 		return err
 	}
 
-	err = s.app.FirebaseClients.Auth.DeleteUser(ctx, authUserId)
+	err = s.appTool.GetAuth().DeleteUser(ctx, authUserId)
 	if err != nil {
 		return err
 	}
