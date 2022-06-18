@@ -7,17 +7,19 @@ import (
 )
 
 type RepositoryMock struct {
-	data map[string]repository.AccountRecord
+	accounts     map[string]repository.AccountRecord
+	nameCounters map[string]repository.NameCounterRecord
 }
 
 func NewRepositoryMock() *RepositoryMock {
 	return &RepositoryMock{
-		data: map[string]repository.AccountRecord{},
+		accounts:     map[string]repository.AccountRecord{},
+		nameCounters: map[string]repository.NameCounterRecord{},
 	}
 }
 
 func (r *RepositoryMock) GetAccountById(_ context.Context, accountId uuid.UUID) (repository.AccountRecord, error) {
-	record, ok := r.data[accountId.String()]
+	record, ok := r.accounts[accountId.String()]
 	if !ok {
 		return repository.AccountRecord{}, repository.ErrAccountNotFound
 	}
@@ -26,7 +28,7 @@ func (r *RepositoryMock) GetAccountById(_ context.Context, accountId uuid.UUID) 
 }
 
 func (r *RepositoryMock) GetAccountByAuthUserId(_ context.Context, authUserId string) (repository.AccountRecord, error) {
-	for _, record := range r.data {
+	for _, record := range r.accounts {
 		if record.AuthUserId == authUserId {
 			return record, nil
 		}
@@ -35,19 +37,34 @@ func (r *RepositoryMock) GetAccountByAuthUserId(_ context.Context, authUserId st
 	return repository.AccountRecord{}, repository.ErrAccountNotFound
 }
 
-func (r *RepositoryMock) CreateAccount(ctx context.Context, authUserId string, account repository.AccountRecord) error {
+func (r *RepositoryMock) GetNameCounter(_ context.Context, name string) (repository.NameCounterRecord, error) {
+	record, ok := r.nameCounters[name]
+	if !ok {
+		return repository.NameCounterRecord{}, repository.ErrNameCounterNotFound
+	}
+
+	return record, nil
+}
+
+func (r *RepositoryMock) UpdateNameCounter(nameCounter repository.NameCounterRecord) {
+	r.nameCounters[nameCounter.Name] = nameCounter
+}
+
+func (r *RepositoryMock) CreateAccount(ctx context.Context, authUserId string, record repository.AccountRecord) error {
+	r.UpdateNameCounter(repository.NameCounterRecord{Name: record.Name, Count: record.NameNumber})
+
 	_, err := r.GetAccountByAuthUserId(ctx, authUserId)
 	if err == nil {
 		return repository.ErrAccountAlreadyCreated
 	}
 
-	account.AuthUserId = authUserId
-	r.data[account.AccountId] = account
+	record.AuthUserId = authUserId
+	r.accounts[record.AccountId] = record
 
 	return nil
 }
 
 func (r *RepositoryMock) DeleteAccountById(_ context.Context, accountId uuid.UUID) error {
-	delete(r.data, accountId.String())
+	delete(r.accounts, accountId.String())
 	return nil
 }

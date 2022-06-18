@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func NewFirestoreAccountRepo(firestoreClient *firestore.Client) *FirestoreAccoun
 	return &FirestoreAccountRepo{firestoreClient}
 }
 
-func (f FirestoreAccountRepo) GetAccountById(ctx context.Context, accountId uuid.UUID) (res AccountRecord, err error) {
+func (f *FirestoreAccountRepo) GetAccountById(ctx context.Context, accountId uuid.UUID) (res AccountRecord, err error) {
 	doc, err := f.accountById(ctx, accountId)
 	if err != nil {
 		return AccountRecord{}, err
@@ -34,7 +35,7 @@ func (f FirestoreAccountRepo) GetAccountById(ctx context.Context, accountId uuid
 	return res, nil
 }
 
-func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUserId string) (res AccountRecord, err error) {
+func (f *FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUserId string) (res AccountRecord, err error) {
 	doc, err := f.accountByAuthUserId(ctx, authUserId)
 	if err != nil {
 		return AccountRecord{}, err
@@ -49,8 +50,54 @@ func (f FirestoreAccountRepo) GetAccountByAuthUserId(ctx context.Context, authUs
 	return res, nil
 }
 
-func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId string, record AccountRecord) error {
-	_, err := f.accountByAuthUserId(ctx, authUserId)
+func (f *FirestoreAccountRepo) GetNameCounter(ctx context.Context, name string) (res NameCounterRecord, err error) {
+	doc, err := f.nameCounterByName(ctx, name)
+	if err != nil {
+		return NameCounterRecord{}, err
+	}
+
+	err = doc.DataTo(&res)
+	if err != nil {
+		return NameCounterRecord{}, err
+	}
+
+	return res, nil
+}
+
+func (f *FirestoreAccountRepo) UpdateNameCounter(ctx context.Context, nameCounter NameCounterRecord) (err error) {
+	doc, err := f.nameCounterByName(ctx, nameCounter.Name)
+	if err == ErrNameCounterNotFound {
+		_, _, err := f.namesCounterCollection().Add(ctx, nameCounter)
+		if err != nil {
+			return errors.Wrap(err, "insert name counter")
+		}
+
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	updates := []firestore.Update{{
+		Path:  "Count",
+		Value: nameCounter.Count,
+	}}
+
+	_, err = doc.Ref.Update(ctx, updates)
+	if err != nil {
+		return errors.Wrap(err, "update name counter")
+	}
+
+	return nil
+}
+
+func (f *FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId string, record AccountRecord) error {
+	err := f.UpdateNameCounter(ctx, NameCounterRecord{Name: record.Name, Count: record.NameNumber})
+	if err != nil {
+		return err
+	}
+
+	_, err = f.accountByAuthUserId(ctx, authUserId)
 	if err == nil {
 		return ErrAccountAlreadyCreated
 	}
@@ -69,7 +116,7 @@ func (f FirestoreAccountRepo) CreateAccount(ctx context.Context, authUserId stri
 	return nil
 }
 
-func (f FirestoreAccountRepo) DeleteAccountById(ctx context.Context, accountId uuid.UUID) error {
+func (f *FirestoreAccountRepo) DeleteAccountById(ctx context.Context, accountId uuid.UUID) error {
 	doc, err := f.accountById(ctx, accountId)
 	if err == ErrAccountNotFound {
 		return nil
@@ -91,11 +138,11 @@ func (f FirestoreAccountRepo) DeleteAccountById(ctx context.Context, accountId u
 	return nil
 }
 
-func (f FirestoreAccountRepo) accountsCollection() *firestore.CollectionRef {
+func (f *FirestoreAccountRepo) accountsCollection() *firestore.CollectionRef {
 	return f.firestoreClient.Collection("accounts:accounts")
 }
 
-func (f FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserId string) (*firestore.DocumentSnapshot, error) {
+func (f *FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserId string) (*firestore.DocumentSnapshot, error) {
 	docs, err := f.accountsCollection().
 		Where("AuthUserId", "==", authUserId).
 		Where("DeletedAt", "==", nil).
@@ -114,7 +161,7 @@ func (f FirestoreAccountRepo) accountByAuthUserId(ctx context.Context, authUserI
 	return docs[0], nil
 }
 
-func (f FirestoreAccountRepo) accountById(ctx context.Context, accountId uuid.UUID) (*firestore.DocumentSnapshot, error) {
+func (f *FirestoreAccountRepo) accountById(ctx context.Context, accountId uuid.UUID) (*firestore.DocumentSnapshot, error) {
 	docs, err := f.accountsCollection().
 		Where("AccountId", "==", accountId.String()).
 		Where("DeletedAt", "==", nil).
@@ -128,6 +175,28 @@ func (f FirestoreAccountRepo) accountById(ctx context.Context, accountId uuid.UU
 
 	if len(docs) == 0 {
 		return nil, ErrAccountNotFound
+	}
+
+	return docs[0], nil
+}
+
+func (f *FirestoreAccountRepo) namesCounterCollection() *firestore.CollectionRef {
+	return f.firestoreClient.Collection("accounts:names_counter")
+}
+
+func (f *FirestoreAccountRepo) nameCounterByName(ctx context.Context, name string) (*firestore.DocumentSnapshot, error) {
+	docs, err := f.namesCounterCollection().
+		Where("Name", "==", name).
+		Limit(1).
+		Documents(ctx).
+		GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(docs) == 0 {
+		return nil, ErrNameCounterNotFound
 	}
 
 	return docs[0], nil

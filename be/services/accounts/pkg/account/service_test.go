@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/tower/towermock"
 	"git.jetbrains.space/artdecoction/wt/tower/lib/validate"
+	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/internal/repository"
 	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/internal/repository/repositorymock"
 	"git.jetbrains.space/artdecoction/wt/tower/services/accounts/pkg/account"
 	"github.com/google/uuid"
@@ -35,13 +36,11 @@ func TestAccountService(t *testing.T) {
 		err := svc.Create(ctx, authUserId, name)
 		assert.NoError(t, err)
 
-		record, err := repositoryMock.GetAccountByAuthUserId(ctx, authUserId)
-		assert.NoError(t, err)
-		assert.Equal(t, name, record.Name)
+		accountId := getAccountId(t, ctx, repositoryMock, authUserId)
 
-		model, err := svc.Get(ctx, uuid.MustParse(record.AccountId))
+		model, err := svc.Get(ctx, accountId)
 		assert.NoError(t, err)
-		assert.Equal(t, record.Name, model.Name)
+		assert.Equal(t, name, model.Name.Base)
 
 		err = svc.Delete(ctx, model.AccountId, authUserId)
 		assert.NoError(t, err)
@@ -49,4 +48,39 @@ func TestAccountService(t *testing.T) {
 		_, err = svc.Get(ctx, model.AccountId)
 		assert.Equal(t, account.ErrAccountNotFound, err)
 	})
+
+	t.Run("Create assigns correct name numbers", func(t *testing.T) {
+		ctx := context.Background()
+		authUser1Id := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+		authUser2Id := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+		randStr := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+		name := "sam" + randStr[6:19]
+
+		err := svc.Create(ctx, authUser1Id, name)
+		assert.NoError(t, err)
+
+		account1Id := getAccountId(t, ctx, repositoryMock, authUser1Id)
+
+		model1, err := svc.Get(ctx, account1Id)
+		assert.NoError(t, err)
+		assert.Equal(t, name, model1.Name.Base)
+		assert.Equal(t, uint32(1), model1.Name.Number)
+
+		err = svc.Create(ctx, authUser2Id, name)
+		assert.NoError(t, err)
+
+		account2Id := getAccountId(t, ctx, repositoryMock, authUser2Id)
+
+		model2, err := svc.Get(ctx, account2Id)
+		assert.NoError(t, err)
+		assert.Equal(t, name, model2.Name.Base)
+		assert.Equal(t, uint32(2), model2.Name.Number)
+	})
+}
+
+func getAccountId(t *testing.T, ctx context.Context, repositoryMock repository.AccountRepo, authUserId string) uuid.UUID {
+	record, err := repositoryMock.GetAccountByAuthUserId(ctx, authUserId)
+	assert.NoError(t, err)
+
+	return uuid.MustParse(record.AccountId)
 }

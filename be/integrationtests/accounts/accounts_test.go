@@ -43,7 +43,7 @@ func TestAccounts(t *testing.T) {
 		res, err := client.GetMyAccount(ctx, &rpcpublicv1.GetMyAccountRequest{})
 		assert.Equal(t, codes.OK.String(), status.Code(err).String())
 
-		assert.Equal(t, name, res.Name)
+		assert.Equal(t, name, res.Name.Base)
 		assert.NotEmpty(t, res.AccountId)
 	})
 
@@ -64,7 +64,7 @@ func TestAccounts(t *testing.T) {
 		res, err := client.GetAccount(ctx, request)
 		assert.Equal(t, codes.OK.String(), status.Code(err).String())
 
-		assert.Equal(t, name, res.Name)
+		assert.Equal(t, name, res.Name.Base)
 		assert.Equal(t, auth.AccountId.String(), res.AccountId)
 	})
 

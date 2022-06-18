@@ -45,13 +45,34 @@ func (s *Svc) Get(ctx context.Context, accountId uuid.UUID) (model.Account, erro
 	return model.AccountFromRepo(res), nil
 }
 
-func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
-	account := model.Account{
-		AccountId: uuid.New(),
-		Name:      name,
+func (s *Svc) GetNameNextNumber(ctx context.Context, name string) (uint32, error) {
+	res, err := s.repo.GetNameCounter(ctx, name)
+
+	if err == repository.ErrNameCounterNotFound {
+		return 1, nil
+	}
+	if err != nil {
+		return 0, tower.UnhandledError(err)
 	}
 
-	err := account.Validate()
+	return res.Count + 1, nil
+}
+
+func (s *Svc) Create(ctx context.Context, authUserId, name string) error {
+	nameNumber, err := s.GetNameNextNumber(ctx, name)
+	if err != nil {
+		return tower.UnhandledError(errors.Wrap(err, "get name number"))
+	}
+
+	account := model.Account{
+		AccountId: uuid.New(),
+		Name: model.AccountName{
+			Base:   name,
+			Number: nameNumber,
+		},
+	}
+
+	err = account.Validate()
 	if err != nil {
 		return tower.ValidationError(err)
 	}

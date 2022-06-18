@@ -17,13 +17,13 @@ message GetAccountRequest {
 }
 message GetAccountResponse {
   string account_id = 1 [(validate.rules).string.uuid = true];
-  string name = 2 [(validate.rules).string = {min_len: 6, max_len: 16, pattern: "^[a-zA-Z0-9]+$"}];
+  AccountName name = 2 [(validate.rules).message.required = true];
 }
 
 message GetMyAccountRequest {}
 message GetMyAccountResponse {
   string account_id = 1 [(validate.rules).string.uuid = true];
-  string name = 2 [(validate.rules).string = {min_len: 6, max_len: 16, pattern: "^[a-zA-Z0-9]+$"}];
+  AccountName name = 2 [(validate.rules).message.required = true];
 }
 
 message CreateMyAccountRequest {
@@ -33,3 +33,8 @@ message CreateMyAccountResponse {}
 
 message DeleteMyAccountRequest {}
 message DeleteMyAccountResponse {}
+
+message AccountName {
+  string base = 1 [(validate.rules).string = {min_len: 6, max_len: 16, pattern: "^[a-zA-Z0-9]+$"}];
+  uint32 number = 2 [(validate.rules).uint32.gte = 1];
+}

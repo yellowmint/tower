@@ -35,11 +35,14 @@ func (s rpcPublicServer) GetAccount(ctx context.Context, req *rpcpublicv1.GetAcc
 
 	return &rpcpublicv1.GetAccountResponse{
 		AccountId: res.AccountId.String(),
-		Name:      res.Name,
+		Name: &rpcpublicv1.AccountName{
+			Base:   res.Name.Base,
+			Number: res.Name.Number,
+		},
 	}, nil
 }
 
-func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetMyAccountRequest) (*rpcpublicv1.GetMyAccountResponse, error) {
+func (s rpcPublicServer) GetMyAccount(ctx context.Context, _ *rpcpublicv1.GetMyAccountRequest) (*rpcpublicv1.GetMyAccountResponse, error) {
 	myAccountId := claims.GetAccountIdFromCtx(ctx)
 
 	res, err := s.accountService.Get(ctx, myAccountId)
@@ -49,7 +52,10 @@ func (s rpcPublicServer) GetMyAccount(ctx context.Context, req *rpcpublicv1.GetM
 
 	return &rpcpublicv1.GetMyAccountResponse{
 		AccountId: res.AccountId.String(),
-		Name:      res.Name,
+		Name: &rpcpublicv1.AccountName{
+			Base:   res.Name.Base,
+			Number: res.Name.Number,
+		},
 	}, nil
 }
 
@@ -68,7 +74,7 @@ func (s rpcPublicServer) CreateMyAccount(ctx context.Context, req *rpcpublicv1.C
 	return &rpcpublicv1.CreateMyAccountResponse{}, nil
 }
 
-func (s rpcPublicServer) DeleteMyAccount(ctx context.Context, req *rpcpublicv1.DeleteMyAccountRequest) (*rpcpublicv1.DeleteMyAccountResponse, error) {
+func (s rpcPublicServer) DeleteMyAccount(ctx context.Context, _ *rpcpublicv1.DeleteMyAccountRequest) (*rpcpublicv1.DeleteMyAccountResponse, error) {
 	accountId := claims.GetAccountIdFromCtx(ctx)
 	authUserId := claims.GetAuthUserIdFromCtx(ctx)
 

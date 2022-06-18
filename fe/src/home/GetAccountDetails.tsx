@@ -5,6 +5,7 @@ import {Box, FormGroup, FormHelperText, FormLabel, Input, Typography} from "@mui
 import {useSnackbar} from "notistack"
 import {useState} from "react"
 import {Controller, SubmitHandler, useForm} from "react-hook-form"
+import {fullName} from "../account/AccountDetails"
 import {useBackend} from "../backend/BackendContextProvider"
 import {checkError, handleCommonErrors} from "../backend/errors"
 import {GetAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
@@ -37,7 +38,12 @@ export const GetAccountDetails = () => {
                 return
             }
 
-            setServerFeedback(`Account name: ${response?.getName()}`)
+            const name = fullName({
+                base: response!.getName()!.getBase(),
+                number: response!.getName()!.getNumber(),
+            })
+
+            setServerFeedback(`Account name: ${name}`)
         })
     }
 

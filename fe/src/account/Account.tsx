@@ -4,7 +4,7 @@ import {useEffect, useState} from "react"
 import {useBackend} from "../backend/BackendContextProvider"
 import {handleCommonErrors} from "../backend/errors"
 import {GetMyAccountRequest} from "../contracts/accounts/rpcpublic/v1/accounts_pb"
-import {AccountData, AccountDetails} from "./AccountDetails"
+import {AccountData, AccountDetails, fullName} from "./AccountDetails"
 import {DeleteAccount} from "./DeleteAccount"
 
 export const Account = () => {
@@ -22,7 +22,13 @@ export const Account = () => {
 
             if (err) return handleCommonErrors(err, enqueueSnackbar, "load account")
 
-            setAccountData({name: response!.getName(), accountId: response!.getAccountId()})
+            setAccountData({
+                accountId: response!.getAccountId(),
+                name: {
+                    base: response!.getName()!.getBase(),
+                    number: response!.getName()!.getNumber(),
+                },
+            })
         })
     }, [backend, enqueueSnackbar])
 
@@ -35,7 +41,7 @@ export const Account = () => {
             {accountData &&
                 <>
                     <AccountDetails {...{accountData}} />
-                    <DeleteAccount accountName={accountData.name}/>
+                    <DeleteAccount accountName={fullName(accountData.name)}/>
                 </>
             }
         </>

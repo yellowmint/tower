@@ -28,8 +28,10 @@ export class GetAccountResponse extends jspb.Message {
   getAccountId(): string;
   setAccountId(value: string): void;
 
-  getName(): string;
-  setName(value: string): void;
+  hasName(): boolean;
+  clearName(): void;
+  getName(): AccountName | undefined;
+  setName(value?: AccountName): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetAccountResponse.AsObject;
@@ -44,7 +46,7 @@ export class GetAccountResponse extends jspb.Message {
 export namespace GetAccountResponse {
   export type AsObject = {
     accountId: string,
-    name: string,
+    name?: AccountName.AsObject,
   }
 }
 
@@ -68,8 +70,10 @@ export class GetMyAccountResponse extends jspb.Message {
   getAccountId(): string;
   setAccountId(value: string): void;
 
-  getName(): string;
-  setName(value: string): void;
+  hasName(): boolean;
+  clearName(): void;
+  getName(): AccountName | undefined;
+  setName(value?: AccountName): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetMyAccountResponse.AsObject;
@@ -84,7 +88,7 @@ export class GetMyAccountResponse extends jspb.Message {
 export namespace GetMyAccountResponse {
   export type AsObject = {
     accountId: string,
-    name: string,
+    name?: AccountName.AsObject,
   }
 }
 
@@ -153,6 +157,30 @@ export class DeleteMyAccountResponse extends jspb.Message {
 
 export namespace DeleteMyAccountResponse {
   export type AsObject = {
+  }
+}
+
+export class AccountName extends jspb.Message {
+  getBase(): string;
+  setBase(value: string): void;
+
+  getNumber(): number;
+  setNumber(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AccountName.AsObject;
+  static toObject(includeInstance: boolean, msg: AccountName): AccountName.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AccountName, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AccountName;
+  static deserializeBinaryFromReader(message: AccountName, reader: jspb.BinaryReader): AccountName;
+}
+
+export namespace AccountName {
+  export type AsObject = {
+    base: string,
+    number: number,
   }
 }
 

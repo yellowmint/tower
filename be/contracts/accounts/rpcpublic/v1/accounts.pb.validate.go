@@ -194,10 +194,10 @@ func (m *GetAccountResponse) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if l := utf8.RuneCountInString(m.GetName()); l < 6 || l > 16 {
+	if m.GetName() == nil {
 		err := GetAccountResponseValidationError{
 			field:  "Name",
-			reason: "value length must be between 6 and 16 runes, inclusive",
+			reason: "value is required",
 		}
 		if !all {
 			return err
@@ -205,15 +205,33 @@ func (m *GetAccountResponse) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if !_GetAccountResponse_Name_Pattern.MatchString(m.GetName()) {
-		err := GetAccountResponseValidationError{
-			field:  "Name",
-			reason: "value does not match regex pattern \"^[a-zA-Z0-9]+$\"",
+	if all {
+		switch v := interface{}(m.GetName()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetAccountResponseValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetAccountResponseValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
 		}
-		if !all {
-			return err
+	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAccountResponseValidationError{
+				field:  "Name",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
 		}
-		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {
@@ -303,8 +321,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetAccountResponseValidationError{}
-
-var _GetAccountResponse_Name_Pattern = regexp.MustCompile("^[a-zA-Z0-9]+$")
 
 // Validate checks the field values on GetMyAccountRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -442,10 +458,10 @@ func (m *GetMyAccountResponse) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if l := utf8.RuneCountInString(m.GetName()); l < 6 || l > 16 {
+	if m.GetName() == nil {
 		err := GetMyAccountResponseValidationError{
 			field:  "Name",
-			reason: "value length must be between 6 and 16 runes, inclusive",
+			reason: "value is required",
 		}
 		if !all {
 			return err
@@ -453,15 +469,33 @@ func (m *GetMyAccountResponse) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if !_GetMyAccountResponse_Name_Pattern.MatchString(m.GetName()) {
-		err := GetMyAccountResponseValidationError{
-			field:  "Name",
-			reason: "value does not match regex pattern \"^[a-zA-Z0-9]+$\"",
+	if all {
+		switch v := interface{}(m.GetName()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetMyAccountResponseValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetMyAccountResponseValidationError{
+					field:  "Name",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
 		}
-		if !all {
-			return err
+	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetMyAccountResponseValidationError{
+				field:  "Name",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
 		}
-		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {
@@ -551,8 +585,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetMyAccountResponseValidationError{}
-
-var _GetMyAccountResponse_Name_Pattern = regexp.MustCompile("^[a-zA-Z0-9]+$")
 
 // Validate checks the field values on CreateMyAccountRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -985,3 +1017,137 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteMyAccountResponseValidationError{}
+
+// Validate checks the field values on AccountName with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *AccountName) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AccountName with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AccountNameMultiError, or
+// nil if none found.
+func (m *AccountName) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AccountName) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if l := utf8.RuneCountInString(m.GetBase()); l < 6 || l > 16 {
+		err := AccountNameValidationError{
+			field:  "Base",
+			reason: "value length must be between 6 and 16 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_AccountName_Base_Pattern.MatchString(m.GetBase()) {
+		err := AccountNameValidationError{
+			field:  "Base",
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]+$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetNumber() < 1 {
+		err := AccountNameValidationError{
+			field:  "Number",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AccountNameMultiError(errors)
+	}
+
+	return nil
+}
+
+// AccountNameMultiError is an error wrapping multiple validation errors
+// returned by AccountName.ValidateAll() if the designated constraints aren't met.
+type AccountNameMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AccountNameMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AccountNameMultiError) AllErrors() []error { return m }
+
+// AccountNameValidationError is the validation error returned by
+// AccountName.Validate if the designated constraints aren't met.
+type AccountNameValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AccountNameValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AccountNameValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AccountNameValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AccountNameValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AccountNameValidationError) ErrorName() string { return "AccountNameValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AccountNameValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAccountName.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AccountNameValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AccountNameValidationError{}
+
+var _AccountName_Base_Pattern = regexp.MustCompile("^[a-zA-Z0-9]+$")
