@@ -53,7 +53,7 @@ module "tower_alpha" {
   }
   application_config = {
     mode        = "prod"
-    backend_tag = "0.0.1-main-build-4"
+    backend_tag = "0.0.1-main-build-8"
   }
 
   depends_on = [google_project_service.api_run, google_artifact_registry_repository.docker_services_repo]
